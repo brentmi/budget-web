@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Sidebar Mockup – IRDETO BMS</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         font-size: 14px;
+         background: #f0f2f5;
+         color: #333;
+      }
+
+      /* ── Top navbar ─────────────────────────────────────────────── */
+      .navbar {
+         height: 48px;
+         background: #1a1f2e;
+         display: flex;
+         align-items: center;
+         padding: 0 12px;
+         gap: 10px;
+         position: fixed;
+         top: 0; left: 0; right: 0;
+         z-index: 2000;
+         box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      }
+
+      .navbar-toggle {
+         background: none;
+         border: none;
+         color: #a0aec0;
+         font-size: 16px;
+         cursor: pointer;
+         padding: 6px 8px;
+         border-radius: 4px;
+         transition: background 0.15s, color 0.15s;
+         line-height: 1;
+      }
+      .navbar-toggle:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+      .navbar-brand {
+         color: #fff;
+         font-size: 15px;
+         font-weight: 600;
+         letter-spacing: 0.04em;
+         text-decoration: none;
+         margin-right: auto;
+      }
+
+      .env-badge {
+         font-size: 11px;
+         font-weight: 700;
+         letter-spacing: 0.06em;
+         padding: 3px 10px;
+         border-radius: 3px;
+         text-transform: uppercase;
+      }
+      .env-badge.dev        { background: #276749; color: #9ae6b4; }
+      .env-badge.pts        { background: #744210; color: #fbd38d; }
+      .env-badge.production { background: #822727; color: #fed7d7; }
+
+      .navbar-user {
+         color: #718096;
+         font-size: 12px;
+         white-space: nowrap;
+      }
+
+      /* ── Layout wrapper ─────────────────────────────────────────── */
+      #wrapper {
+         display: flex;
+         padding-top: 48px;
+         min-height: 100vh;
+      }
+
+      /* ── Sidebar ────────────────────────────────────────────────── */
+      #sidebar-wrapper {
+         width: 230px;
+         min-width: 230px;
+         background: #1e2738;
+         min-height: calc(100vh - 48px);
+         position: fixed;
+         top: 48px;
+         left: 0;
+         bottom: 0;
+         overflow: hidden;
+         transition: width 0.25s ease, min-width 0.25s ease;
+         z-index: 1000;
+         display: flex;
+         flex-direction: column;
+      }
+
+      /* icon-only collapsed state */
+      #wrapper.toggled-2 #sidebar-wrapper {
+         width: 50px;
+         min-width: 50px;
+      }
+
+      /* fully hidden (mobile / manual hide) */
+      #wrapper.toggled #sidebar-wrapper {
+         width: 0;
+         min-width: 0;
+      }
+
+      /* ── Sidebar nav ────────────────────────────────────────────── */
+      .sidebar-nav {
+         list-style: none;
+         padding: 8px 0;
+         flex: 1;
+         overflow-y: auto;
+         overflow-x: hidden;
+      }
+
+      /* top divider label */
+      .sidebar-section-label {
+         font-size: 10px;
+         font-weight: 700;
+         letter-spacing: 0.1em;
+         text-transform: uppercase;
+         color: #4a5568;
+         padding: 14px 16px 4px;
+         white-space: nowrap;
+         overflow: hidden;
+         transition: opacity 0.2s;
+      }
+      #wrapper.toggled-2 .sidebar-section-label { opacity: 0; }
+
+      /* every nav item row */
+      .sidebar-nav li { position: relative; }
+
+      .sidebar-nav li > a,
+      .sidebar-nav li > span.nav-parent {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+         padding: 9px 16px;
+         color: #94a3b8;
+         text-decoration: none;
+         white-space: nowrap;
+         overflow: hidden;
+         cursor: pointer;
+         border-left: 3px solid transparent;
+         transition: background 0.15s, color 0.15s, border-color 0.15s;
+         user-select: none;
+      }
+
+      .sidebar-nav li > a:hover,
+      .sidebar-nav li > span.nav-parent:hover {
+         background: rgba(255,255,255,0.05);
+         color: #e2e8f0;
+      }
+
+      /* active leaf item */
+      .sidebar-nav li.active > a {
+         background: rgba(229,62,62,0.12);
+         color: #fc8181;
+         border-left-color: #e53e3e;
+      }
+
+      /* icon column — fixed width so text slides away cleanly */
+      .nav-icon {
+         font-size: 15px;
+         width: 20px;
+         text-align: center;
+         flex-shrink: 0;
+      }
+
+      .nav-label { transition: opacity 0.2s; }
+      #wrapper.toggled-2 .nav-label { opacity: 0; pointer-events: none; }
+
+      /* chevron for parent items */
+      .nav-chevron {
+         margin-left: auto;
+         font-size: 11px;
+         color: #4a5568;
+         transition: transform 0.2s, opacity 0.2s;
+         flex-shrink: 0;
+      }
+      .nav-parent.open .nav-chevron { transform: rotate(90deg); color: #718096; }
+      #wrapper.toggled-2 .nav-chevron { opacity: 0; }
+
+      /* ── Sub-menu ───────────────────────────────────────────────── */
+      .sidebar-nav ul {
+         list-style: none;
+         background: rgba(0,0,0,0.15);
+         overflow: hidden;
+      }
+
+      .sidebar-nav ul li > a {
+         padding: 7px 16px 7px 44px;
+         font-size: 13px;
+         color: #718096;
+         border-left: 3px solid transparent;
+      }
+      .sidebar-nav ul li > a:hover {
+         background: rgba(255,255,255,0.04);
+         color: #cbd5e0;
+      }
+      .sidebar-nav ul li.active > a {
+         background: rgba(229,62,62,0.10);
+         color: #fc8181;
+         border-left-color: #e53e3e;
+      }
+
+      #wrapper.toggled-2 .sidebar-nav ul { display: none !important; }
+
+      /* ── Logout row ─────────────────────────────────────────────── */
+      .sidebar-logout {
+         border-top: 1px solid rgba(255,255,255,0.06);
+         padding: 6px 0;
+      }
+      .sidebar-logout a {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+         padding: 9px 16px;
+         color: #718096;
+         text-decoration: none;
+         white-space: nowrap;
+         overflow: hidden;
+         transition: background 0.15s, color 0.15s;
+         border-left: 3px solid transparent;
+      }
+      .sidebar-logout a:hover {
+         background: rgba(255,255,255,0.05);
+         color: #fc8181;
+      }
+      .sidebar-logout .nav-label { transition: opacity 0.2s; }
+      #wrapper.toggled-2 .sidebar-logout .nav-label { opacity: 0; }
+
+      /* ── Page content ───────────────────────────────────────────── */
+      #page-content-wrapper {
+         margin-left: 230px;
+         transition: margin-left 0.25s ease;
+         padding: 28px;
+         flex: 1;
+      }
+      #wrapper.toggled-2 #page-content-wrapper { margin-left: 50px; }
+      #wrapper.toggled  #page-content-wrapper { margin-left: 0; }
+
+      /* ── Demo content ───────────────────────────────────────────── */
+      .demo-card {
+         background: #fff;
+         border-radius: 6px;
+         padding: 24px;
+         box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+         max-width: 700px;
+      }
+      .demo-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #1a202c; }
+      .demo-card p  { color: #718096; font-size: 13px; line-height: 1.6; }
+      .demo-controls { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+      .demo-controls button {
+         padding: 6px 14px;
+         border-radius: 4px;
+         border: 1px solid #e2e8f0;
+         background: #f7fafc;
+         font-size: 12px;
+         cursor: pointer;
+         color: #4a5568;
+         transition: background 0.15s;
+      }
+      .demo-controls button:hover { background: #edf2f7; }
+      .state-label {
+         margin-top: 14px;
+         font-size: 12px;
+         color: #a0aec0;
+      }
+      code {
+         background: #edf2f7;
+         padding: 1px 5px;
+         border-radius: 3px;
+         font-size: 11px;
+      }
+   </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────────────── -->
+<nav class="navbar">
+   <!-- mobile: fully hide sidebar -->
+   <button class="navbar-toggle" id="menu-toggle" title="Hide sidebar">
+      <i class="fa fa-bars"></i>
+   </button>
+   <!-- desktop: collapse to icons only -->
+   <button class="navbar-toggle" id="menu-toggle-2" title="Collapse sidebar">
+      <i class="fa fa-indent"></i>
+   </button>
+
+   <a class="navbar-brand" href="#">IRDETO BMS</a>
+
+   <!-- swap the class below to .pts or .production to see badge variants -->
+   <span class="env-badge dev">Development</span>
+
+   <span class="navbar-user">user@foxtel.com.au &nbsp;|&nbsp; BTChannelPlanControl</span>
+</nav>
+
+<!-- ── Layout ──────────────────────────────────────────────────────── -->
+<div id="wrapper">
+
+   <!-- Sidebar -->
+   <div id="sidebar-wrapper">
+      <ul class="sidebar-nav" id="menu">
+
+         <!-- Section: Workflow (access-gated, shown because user has access) -->
+         <li class="sidebar-section-label">Workflow</li>
+         <li>
+            <span class="nav-parent">
+               <i class="fa fa-sitemap nav-icon"></i>
+               <span class="nav-label">Workflow</span>
+               <i class="fa fa-chevron-right nav-chevron"></i>
+            </span>
+            <ul>
+               <!-- add class="active" to whichever item matches the current page -->
+               <li class="active">
+                  <a href="#"><i class="fa fa-file-text-o nav-icon"></i><span class="nav-label">Name Change</span></a>
+               </li>
+            </ul>
+         </li>
+
+         <!-- Section: Channel -->
+         <li class="sidebar-section-label">Channels</li>
+         <li>
+            <span class="nav-parent">
+               <i class="fa fa-tv nav-icon"></i>
+               <span class="nav-label">Channel Manage</span>
+               <i class="fa fa-chevron-right nav-chevron"></i>
+            </span>
+            <ul>
+               <li><a href="#"><i class="fa fa-pencil nav-icon"></i><span class="nav-label">Channel Name</span></a></li>
+               <li><a href="#"><i class="fa fa-arrows nav-icon"></i><span class="nav-label">Service Move</span></a></li>
+               <li><a href="#"><i class="fa fa-trash-o nav-icon"></i><span class="nav-label">Decommission</span></a></li>
+               <li><a href="#"><i class="fa fa-window-restore nav-icon"></i><span class="nav-label">Popup Channels</span></a></li>
+            </ul>
+         </li>
+
+      </ul>
+
+      <!-- Logout pinned to bottom -->
+      <div class="sidebar-logout">
+         <a href="#"><i class="fa fa-sign-out nav-icon"></i><span class="nav-label">Logout</span></a>
+      </div>
+   </div>
+
+   <!-- Page content -->
+   <div id="page-content-wrapper">
+      <div class="demo-card">
+         <h2>Sidebar mockup — IRDETO BMS</h2>
+         <p>
+            This demonstrates the proposed sidebar. All existing behaviour is preserved:
+            two toggle buttons, accordion submenus, and server-side active state.
+            Only the visual style changes.
+         </p>
+         <div class="demo-controls">
+            <button onclick="setEnv('dev')">Badge: Dev</button>
+            <button onclick="setEnv('pts')">Badge: PTS</button>
+            <button onclick="setEnv('production')">Badge: Production</button>
+         </div>
+         <p class="state-label">
+            Toggle state: <code id="state-label">default (full sidebar)</code>
+         </p>
+      </div>
+   </div>
+
+</div>
+
+<script>
+   // ── Toggle logic (mirrors sidebar_menu.js exactly) ────────────────
+   document.getElementById('menu-toggle').addEventListener('click', function (e) {
+      e.preventDefault();
+      var w = document.getElementById('wrapper');
+      w.classList.remove('toggled-2');
+      w.classList.toggle('toggled');
+      updateLabel();
+   });
+
+   document.getElementById('menu-toggle-2').addEventListener('click', function (e) {
+      e.preventDefault();
+      var w = document.getElementById('wrapper');
+      w.classList.remove('toggled');
+      w.classList.toggle('toggled-2');
+      // hide open submenus when collapsing to icon-only
+      document.querySelectorAll('#menu ul').forEach(function (ul) { ul.style.display = ''; });
+      document.querySelectorAll('.nav-parent').forEach(function (p) { p.classList.remove('open'); });
+      updateLabel();
+   });
+
+   // ── Accordion ─────────────────────────────────────────────────────
+   function initMenu() {
+      // hide all submenus initially
+      document.querySelectorAll('#menu ul').forEach(function (ul) { ul.style.display = 'none'; });
+
+      // expand whichever group contains an active item
+      document.querySelectorAll('#menu li.active').forEach(function (li) {
+         var parentUl = li.closest('ul');
+         if (parentUl && parentUl !== document.getElementById('menu')) {
+            parentUl.style.display = 'block';
+            var parent = parentUl.previousElementSibling;
+            if (parent) parent.classList.add('open');
+         }
+      });
+
+      document.querySelectorAll('.nav-parent').forEach(function (parent) {
+         parent.addEventListener('click', function () {
+            if (document.getElementById('wrapper').classList.contains('toggled-2')) return;
+            var ul = parent.nextElementSibling;
+            var isOpen = ul && ul.style.display === 'block';
+
+            // close all
+            document.querySelectorAll('#menu ul').forEach(function (u) { u.style.display = 'none'; });
+            document.querySelectorAll('.nav-parent').forEach(function (p) { p.classList.remove('open'); });
+
+            if (!isOpen && ul) {
+               ul.style.display = 'block';
+               parent.classList.add('open');
+            }
+         });
+      });
+   }
+
+   // ── Env badge demo ────────────────────────────────────────────────
+   function setEnv(env) {
+      var badge = document.querySelector('.env-badge');
+      badge.className = 'env-badge ' + env;
+      var labels = { dev: 'Development', pts: 'PTS', production: 'Production' };
+      badge.textContent = labels[env];
+   }
+
+   function updateLabel() {
+      var w = document.getElementById('wrapper');
+      var lbl = document.getElementById('state-label');
+      if (w.classList.contains('toggled'))   lbl.textContent = 'toggled (sidebar hidden)';
+      else if (w.classList.contains('toggled-2')) lbl.textContent = 'toggled-2 (icon-only, 50px)';
+      else                                        lbl.textContent = 'default (full sidebar, 230px)';
+   }
+
+   initMenu();
+</script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+/* dropdown button*/
+
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px;
+  /*font-size: 10px;
+  font-weight: 400;*/
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 210px;
+  width: 140px;  
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #0b683c;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+
+#adi_container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+#adi_container > div {
+  width: 200px;
+  height: 100px;
+
+}
+
+.groupContainer {
+  width: 47%;
+  height: 394px;
+  margin: 0.5em;
+  padding: 10px;
+  border: 1px solid #aaaaaa;
+  border-radius: 25px;
+  float: left;
+  overflow: auto;  
+}
+
+.streamContainer {
+  width: 98%;
+  height: 394px;
+  margin: 0.5em;
+  padding: 10px;
+  border: 1px solid #aaaaaa;
+  border-radius: 25px;
+  float: left;
+  overflow: auto;  
+}
+
+.configContainer {
+  width: 100%;
+  height: 800px;
+  margin: 0.5em;
+  padding: 0px;
+  border: 0px solid #aaaaaa;
+  float: left;
+  overflow: auto;
+}
+
+.headerbox {
+  width: 100%;
+  background-color: #337ab7;
+  margin-top: 0.2em;
+  margin-bottom: 2.5em;
+  padding: 4px 5px;
+  border-radius: 4px;
+}
+
+.stableLabelWhite {
+  /*font-size: 10px;
+  font-weight: 400;*/
+  margin-left: 15px;
+  float:left; 
+  color: white
+}
+
+/*============== On Off ======================*/
+
+.switchcontainer {
+width: 10%; /* Width of the outside container */
+padding-top: 5px;
+padding-bottom: 5px;
+}
+
+.switchMonitorContainer {
+width: 10%; /* Width of the outside container */
+padding-top: 5px;
+padding-bottom: 5px;
+}
+
+.onoffswitch {
+  position: relative; width: 80px;
+  -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.onoffswitch-label {
+  display: block; overflow: hidden; cursor: pointer;
+  border: 2px solid #999999; border-radius: 20px;
+}
+.onoffswitch-inner {
+  display: block; width: 200%; margin-left: -100%;
+  transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+  display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+  font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+  box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+  content: "AUTO";
+  padding-left: 10px;
+  background-color: #34A7C1; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+  content: "OFF";
+  padding-right: 10px;
+  background-color: #EEEEEE; color: #999999;
+  text-align: right;
+}
+.onoffswitch-switch {
+  display: block; width: 18px; margin: 6px;
+  background: #FFFFFF;
+  position: absolute; top: 0; bottom: 0;
+  right: 46px;
+  border: 2px solid #999999; border-radius: 20px;
+  transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+  margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+  right: 0px;
+}
+
+.warning {
+  display: none;
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  outline: none;
+  padding: 14px 16px;
+  transition: 1.3s;
+  font-size: 17px;
+  font-weight: 400;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: center;
+}
+
+#loading {
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  position: fixed;
+  display: block;
+  opacity: 0.7;
+  background-color: #fff;
+  z-index: 99;
+  text-align: center;
+}
+
+#loading-image {
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  z-index: 100;
+}

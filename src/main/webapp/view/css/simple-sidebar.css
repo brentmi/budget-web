@@ -1,0 +1,236 @@
+/* IRDETO BMS – Sidebar styles */
+
+/* ── Utility ─────────────────────────────────────────────────────── */
+.no-margin  { margin: 0; }
+.xyz        { min-width: 360px; }
+.fixed-brand {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* ── Navbar dark theme ───────────────────────────────────────────── */
+.navbar.navbar-dark {
+    background: #1a1f2e;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    margin-bottom: 0;
+    padding: 0 12px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+.navbar.navbar-dark .navbar-brand {
+    color: #f0f4f8;
+    font-weight: 600;
+}
+.navbar.navbar-dark .navbar-brand:hover { color: #fff; background: none; }
+.navbar.navbar-dark .navbar-toggler {
+    border-color: transparent;
+    background: none;
+    padding: 6px 8px;
+}
+.navbar.navbar-dark .navbar-toggler:hover,
+.navbar.navbar-dark .navbar-toggler:focus {
+    background: rgba(255,255,255,0.08);
+    box-shadow: none;
+}
+.navbar.navbar-dark .navbar-toggler .fa-solid {
+    color: #94a3b8;
+    font-size: 16px;
+}
+.navbar.navbar-dark .navbar-toggler:hover .fa-solid { color: #fff; }
+
+/* environment badge */
+.local-lable {
+    min-width: 110px !important;
+    display: inline-block !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    padding: 3px 10px !important;
+    border-radius: 3px !important;
+}
+
+/* ── Layout wrapper ──────────────────────────────────────────────── */
+#wrapper {
+    padding-left: 0;
+    -webkit-transition: all 0.25s ease;
+    -moz-transition: all 0.25s ease;
+    -o-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+#wrapper.toggled {
+    padding-left: 250px;
+    overflow: hidden;
+}
+
+/* ── Sidebar panel ───────────────────────────────────────────────── */
+#sidebar-wrapper {
+    z-index: 1000;
+    position: absolute;
+    left: 250px;
+    width: 0;
+    height: 94%;
+    margin-left: -250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #1e2738;
+    -webkit-transition: all 0.25s ease;
+    -moz-transition: all 0.25s ease;
+    -o-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+}
+#wrapper.toggled #sidebar-wrapper { width: 250px; }
+
+/* ── Page content ────────────────────────────────────────────────── */
+#page-content-wrapper {
+    position: absolute;
+    padding: 15px;
+    width: 100%;
+    overflow-x: hidden;
+}
+#wrapper.toggled #page-content-wrapper {
+    position: relative;
+    margin-right: 0;
+}
+
+/* ── Sidebar nav ─────────────────────────────────────────────────── */
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 250px;
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+}
+
+/* section divider labels */
+.sidebar-nav li.sidebar-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3d4f6b;
+    padding: 14px 16px 4px;
+    line-height: 1;
+    text-indent: 0;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* all rows */
+.sidebar-nav li {
+    text-indent: 0;
+    line-height: 1;
+}
+
+.sidebar-nav li > a {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: #94a3b8;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    border-left: 3px solid transparent;
+    -webkit-transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.sidebar-nav li > a:hover {
+    background: rgba(255,255,255,0.05);
+    color: #e2e8f0;
+    text-decoration: none;
+    border-left-color: rgba(229,62,62,0.4);
+}
+.sidebar-nav li > a:focus,
+.sidebar-nav li > a:active { text-decoration: none; outline: none; }
+
+/* active leaf */
+.sidebar-nav li.active > a {
+    background: rgba(229,62,62,0.12);
+    color: #fc8181;
+    border-left-color: #e53e3e;
+}
+
+/* icon column */
+.nav-icon {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+}
+
+/* ── Sub-menus ───────────────────────────────────────────────────── */
+.sidebar-nav ul {
+    list-style: none;
+    background: rgba(0,0,0,0.15);
+    padding: 0;
+    margin: 0;
+}
+.sidebar-nav ul li > a {
+    padding: 8px 16px 8px 44px;
+    font-size: 13px;
+    color: #64748b;
+    border-left: 3px solid transparent;
+}
+.sidebar-nav ul li > a:hover {
+    background: rgba(255,255,255,0.04);
+    color: #cbd5e0;
+    border-left-color: rgba(229,62,62,0.3);
+}
+.sidebar-nav ul li.active > a {
+    background: rgba(229,62,62,0.10);
+    color: #fc8181;
+    border-left-color: #e53e3e;
+}
+
+/* ── Desktop (768px+) ────────────────────────────────────────────── */
+@media (min-width: 768px) {
+    #wrapper           { padding-left: 250px; }
+    .fixed-brand       { width: 250px; }
+    #wrapper.toggled   { padding-left: 0; }
+
+    #sidebar-wrapper                             { width: 250px; }
+    #wrapper.toggled   #sidebar-wrapper          { width: 0; overflow: hidden; }
+    #wrapper.toggled-2 #sidebar-wrapper          { width: 50px; }
+    #wrapper.toggled-2 #sidebar-wrapper:hover    { width: 250px; }
+    #wrapper.toggled.toggled-2 #sidebar-wrapper  { width: 0; overflow: hidden; }
+
+    #page-content-wrapper {
+        padding: 20px;
+        position: relative;
+        -webkit-transition: all 0.25s ease;
+        -moz-transition: all 0.25s ease;
+        -o-transition: all 0.25s ease;
+        transition: all 0.25s ease;
+    }
+    #wrapper.toggled #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+        padding-left: 0;
+    }
+    #wrapper.toggled-2 #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+        margin-left: -200px;
+        -webkit-transition: all 0.25s ease;
+        -moz-transition: all 0.25s ease;
+        -o-transition: all 0.25s ease;
+        transition: all 0.25s ease;
+        width: auto;
+    }
+    #wrapper.toggled.toggled-2 #page-content-wrapper {
+        margin-left: 0;
+        padding-left: 0;
+        width: 100%;
+    }
+}

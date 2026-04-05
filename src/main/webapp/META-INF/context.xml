@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/budgetapi">
+  <Resource auth="Container" closeMethod="close" driverClassName="com.mysql.cj.jdbc.Driver" factory="org.apache.tomcat.dbcp.dbcp2.BasicDataSourceFactory" global="jdbc/budgetWeb" logAbandoned="true" maxIdle="3" maxPoolSize="5" maxTotal="3" maxWaitMillis="10000" minEvictableIdleTimeMillis="120000" minIdle="2" name="jdbc/budgetWeb" numTestsPerEvictionRun="3" password="copsaretops" removeAbandoned="true" removeAbandonedTimeout="60" testOnBorrow="true" testWhileIdle="true" timeBetweenEvictionRunsMillis="900000" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/budget_web?allowPublicKeyRetrieval=true&amp;useSSL=false" useSSL="false" username="budgetdev" validationQuery="SELECT NOW()"/>
+</Context>

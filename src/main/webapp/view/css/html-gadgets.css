@@ -1,0 +1,134 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 16 Jul. 2021, 8:01:26 am
+    Author     : brentmi
+*/
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 25px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 30px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* ── Global component defaults ─────────────────────────────────────────── */
+
+/* Buttons — applies to all .btn variants, overrides td/* font rule */
+.btn {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+   border-radius: 4px !important;
+}
+.btn:not(.btn-sm):not(.btn-lg) {
+   font-size: 13px !important;
+   padding: 4px 12px !important;
+}
+.btn-sm {
+   font-size: 12px !important;
+   padding: 3px 8px !important;
+}
+.btn-lg {
+   font-size: 15px !important;
+   padding: 6px 16px !important;
+}
+
+/* Inputs, selects, textareas — overrides legacy yellow background */
+input[type=text],
+input[type=number],
+input[type=email],
+input[type=password],
+input[type=search],
+select,
+textarea {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+   font-size: 13px !important;
+   background: #fff !important;
+   border: 1px solid #ced4da !important;
+   border-radius: 4px !important;
+   padding: 4px 8px !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+   color: #1a1f2e !important;
+   font-weight: 600 !important;
+}
+
+/* Compact inline-edit input for table cells — keeps row height stable */
+input[type=text].inline-edit-input {
+   min-height: 0 !important;
+   height: 1.5em !important;
+   padding: 0 4px !important;
+   box-sizing: border-box !important;
+   line-height: 1.5 !important;
+   border: 1px solid #ced4da !important;
+   border-radius: 4px !important;
+   box-shadow: none !important;
+}
+
+/* Labels */
+label {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+   font-size: 13px !important;
+   color: #333 !important;
+}

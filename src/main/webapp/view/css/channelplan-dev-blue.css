@@ -1,0 +1,66 @@
+/*
+    Document   : ems
+    Created on : 06/12/2013, 3:21:27 PM
+    Author     : milingtonb
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+input[type=text] {
+   background: rgb(250, 255, 189)
+}
+
+.emsButton {
+   width: 115px;
+   background-color:#e3e3e3;
+   border-radius:6px;
+   border:1px solid #363636;
+   display:inline-block;
+   cursor:pointer;
+   color:#424142;
+   font-family:arial;
+   font-size:13px;
+   padding:3px;
+   text-decoration:none;
+   text-shadow:0px 1px 50px #ffffff;
+}
+.emsButton:hover {
+   background-color:#ccc8cc;
+}
+.emsButton:active {
+   position:relative;
+   top:1px;
+}
+
+td input, td label { vertical-align: top; }
+
+div label { vertical-align: middle; }
+
+.helpPopup {
+   position:absolute;
+   width:600px;
+   height:400px;
+   z-index:15;
+   top:40%;
+   left:50%;
+   margin:-100px 0 0 -150px;
+   padding: 0px 0px 0px 0px;
+   background: #e3e3e0;
+   border: 1px solid black;
+   display: none;
+   border-radius: 5px;
+}
+
+.helpBox {
+   background-color: #bdf;
+   text-align: right;
+   padding: 4px 8px 4px 4px;
+   border-bottom: 1px solid black;
+   border-radius: 5px 5px 0px 0px;
+}
+
+.helpText {
+   padding-left: 15px;
+   padding-top: 15px;
+   padding-right: 15px;
+}

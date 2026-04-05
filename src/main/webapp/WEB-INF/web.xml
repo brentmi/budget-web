@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+   
+   <servlet>
+      <servlet-name>irdeto resful apis</servlet-name>
+      <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+      <init-param>
+          <param-name>jersey.config.server.provider.packages</param-name>
+          <!-- set the vendor platform to either foxtel, astra, sky --> 
+          <param-value>com.brentmi.budget.ws</param-value>
+      </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>irdeto resful apis</servlet-name>
+      <url-pattern>/ws/*</url-pattern>
+   </servlet-mapping>
+  
+     
+   <servlet>
+        <servlet-name>WebControl</servlet-name>
+        <servlet-class>com.brentmi.budget.WebControl</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WebControl</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/view/css/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/view/js/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/view/fonts/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/view/images/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/view/font-awesome-6.7.2/*</url-pattern>
+    </servlet-mapping>
+    
+    
+    
+   <error-page>
+      <error-code>404</error-code>
+      <location>/view/error.jsp</location>
+   </error-page>
+   
+   <error-page>
+      <exception-type>java.lang.Throwable</exception-type>
+      <location>/view/error.jsp</location>
+   </error-page>
+    
+   <session-config>
+      <session-timeout>
+           910440
+      </session-timeout>
+   </session-config>
+    <context-param>
+        <description>
+           Set to true when LDAP is available for users that need to login to cpbts.
+        </description>
+        <param-name>LDAP-ENABLED</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+   <context-param> 
+      <description>Helps by writing a buch of shit to the logs, /var/log/messages in aws ec2</description> 
+      <param-name>debug</param-name> 
+      <param-value>true</param-value> 
+   </context-param>
+   
+   <context-param> 
+      <description>Denotes the name of the database for auth, config, admin etc as defined in context.xml</description> 
+      <param-name>webappDbPlatform</param-name> 
+      <param-value>budgetWeb</param-value> 
+   </context-param>
+   <listener>
+      <listener-class>
+         com.brentmi.budget.ServletContextListener 
+      </listener-class>
+   </listener>
+</web-app>

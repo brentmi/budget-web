@@ -52,94 +52,16 @@
    .badge-Yearly    { background: #fef9c3; color: #854d0e; }
    .badge-Weekly    { background: #fce7f3; color: #9d174d; }
    .btn-row { display: flex; gap: 6px; }
+   .fi-table tfoot td {
+      font-weight: 700;
+      background: #f1f5f9;
+      border-top: 2px solid #cbd5e0;
+      padding: 8px 12px;
+   }
 </style>
 
 <h5 class="mb-1">Fixed Inputs</h5>
 <p class="text-muted mb-4" style="font-size:13px;">Known and flexible recurring expenses used to calculate the yearly required spend.</p>
-
-<!-- KNOWN FIXED -->
-<div class="card shadow-sm mb-4">
-   <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-         <p class="section-heading mb-0">Known Fixed Minimums</p>
-         <button class="btn btn-sm btn-primary" onclick="openAddModal('known_fixed')">
-            <i class="fa-solid fa-plus"></i> Add Item
-         </button>
-      </div>
-      <table class="table fi-table" id="tbl-known">
-         <thead>
-            <tr>
-               <th>Item</th>
-               <th>Cost</th>
-               <th>Frequency</th>
-               <th>1 Year</th>
-               <th>10 Years</th>
-               <th>20 Years</th>
-               <th style="width:80px"></th>
-            </tr>
-         </thead>
-         <tbody id="rows-known_fixed">
-            <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
-         </tbody>
-      </table>
-   </div>
-</div>
-
-<!-- FLEXIBLE FIXED -->
-<div class="card shadow-sm mb-4">
-   <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-         <p class="section-heading mb-0">Flexible Fixed Minimums</p>
-         <button class="btn btn-sm btn-primary" onclick="openAddModal('flexible_fixed')">
-            <i class="fa-solid fa-plus"></i> Add Item
-         </button>
-      </div>
-      <table class="table fi-table" id="tbl-flexible">
-         <thead>
-            <tr>
-               <th>Item</th>
-               <th>Cost</th>
-               <th>Frequency</th>
-               <th>1 Year</th>
-               <th>10 Years</th>
-               <th>20 Years</th>
-               <th style="width:80px"></th>
-            </tr>
-         </thead>
-         <tbody id="rows-flexible_fixed">
-            <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
-         </tbody>
-      </table>
-   </div>
-</div>
-
-<!-- SUBSCRIPTIONS -->
-<div class="card shadow-sm mb-4">
-   <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-         <p class="section-heading mb-0">Subscriptions</p>
-         <button class="btn btn-sm btn-primary" onclick="openAddSubModal()">
-            <i class="fa-solid fa-plus"></i> Add
-         </button>
-      </div>
-      <table class="table fi-table mb-0">
-         <thead>
-            <tr>
-               <th>Item</th>
-               <th>Cost</th>
-               <th>Frequency</th>
-               <th>1 Year</th>
-               <th>10 Years</th>
-               <th>20 Years</th>
-               <th style="width:80px"></th>
-            </tr>
-         </thead>
-         <tbody id="rows-subscription">
-            <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
-         </tbody>
-      </table>
-   </div>
-</div>
 
 <!-- TOTALS BAR -->
 <div class="totals-bar mb-4" id="totals-bar">
@@ -162,6 +84,96 @@
    <div class="tot-item">
       <div class="tot-label">Daily</div>
       <div class="tot-value" id="tot-daily">—</div>
+   </div>
+</div>
+
+<!-- KNOWN FIXED -->
+<div class="card shadow-sm mb-4">
+   <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <p class="section-heading mb-0">Known Fixed Minimums</p>
+         <button class="btn btn-sm btn-primary" onclick="openAddModal('known_fixed')">
+            <i class="fa-solid fa-plus"></i> Add Item
+         </button>
+      </div>
+      <table class="table fi-table" id="tbl-known">
+         <thead>
+            <tr>
+               <th>Item</th>
+               <th>Cost</th>
+               <th>Frequency</th>
+               <th>Monthly</th>
+               <th>1 Year</th>
+               <th>10 Years</th>
+               <th>20 Years</th>
+               <th style="width:80px"></th>
+            </tr>
+         </thead>
+         <tbody id="rows-known_fixed">
+            <tr><td colspan="8" class="text-center text-muted py-3">Loading...</td></tr>
+         </tbody>
+         <tfoot id="foot-known_fixed"></tfoot>
+      </table>
+   </div>
+</div>
+
+<!-- FLEXIBLE FIXED -->
+<div class="card shadow-sm mb-4">
+   <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <p class="section-heading mb-0">Flexible Fixed Minimums</p>
+         <button class="btn btn-sm btn-primary" onclick="openAddModal('flexible_fixed')">
+            <i class="fa-solid fa-plus"></i> Add Item
+         </button>
+      </div>
+      <table class="table fi-table" id="tbl-flexible">
+         <thead>
+            <tr>
+               <th>Item</th>
+               <th>Cost</th>
+               <th>Frequency</th>
+               <th>Monthly</th>
+               <th>1 Year</th>
+               <th>10 Years</th>
+               <th>20 Years</th>
+               <th style="width:80px"></th>
+            </tr>
+         </thead>
+         <tbody id="rows-flexible_fixed">
+            <tr><td colspan="8" class="text-center text-muted py-3">Loading...</td></tr>
+         </tbody>
+         <tfoot id="foot-flexible_fixed"></tfoot>
+      </table>
+   </div>
+</div>
+
+<!-- SUBSCRIPTIONS -->
+<div class="card shadow-sm mb-4">
+   <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <p class="section-heading mb-0">Subscriptions</p>
+         <button class="btn btn-sm btn-primary" onclick="openAddSubModal()">
+            <i class="fa-solid fa-plus"></i> Add
+         </button>
+      </div>
+      <table class="table fi-table mb-0">
+         <thead>
+            <tr>
+               <th>Item</th>
+               <th>Cost</th>
+               <th>Frequency</th>
+               <th>Monthly</th>
+               <th>1 Year</th>
+               <th>10 Years</th>
+               <th>20 Years</th>
+               <th style="width:80px"></th>
+            </tr>
+         </thead>
+         <tbody id="rows-subscription">
+            <tr><td colspan="8" class="text-center text-muted py-3">Loading...</td></tr>
+         </tbody>
+         <tfoot id="foot-subscription"></tfoot>
+      </table>
    </div>
 </div>
 
@@ -317,7 +329,7 @@ function loadItems()
       .catch(function(e)
       {
          document.getElementById('rows-known_fixed').innerHTML =
-            '<tr><td colspan="7" class="text-danger text-center">Failed to load data.</td></tr>';
+            '<tr><td colspan="8" class="text-danger text-center">Failed to load data.</td></tr>';
       });
 }
 
@@ -325,22 +337,28 @@ function renderSection(section)
 {
    var rows  = fiItems.filter(function(i) { return i.section === section; });
    var tbody = document.getElementById('rows-' + section);
+   var tfoot = document.getElementById('foot-' + section);
    if (rows.length === 0)
    {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No items. Click Add Item to begin.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No items. Click Add Item to begin.</td></tr>';
+      tfoot.innerHTML = '';
       return;
    }
-   var html = '';
+   var html        = '';
+   var totYearly   = 0;
    rows.forEach(function(item)
    {
       var yearly  = item.item_cost * freqMultiplier(item.frequency);
+      var monthly = yearly / 12;
       var y10     = yearly * 10;
       var y20     = yearly * 20;
       var opacity = item.is_active ? '' : 'opacity:0.45;';
+      if (item.is_active) totYearly += yearly;
       html += '<tr style="' + opacity + '">' +
          '<td>' + escHtml(item.item_name) + '</td>' +
          '<td>' + fmt(item.item_cost) + '</td>' +
          '<td><span class="badge-freq badge-' + item.frequency + '">' + item.frequency + '</span></td>' +
+         '<td>' + fmt(monthly) + '</td>' +
          '<td>' + fmt(yearly) + '</td>' +
          '<td>' + fmt(y10) + '</td>' +
          '<td>' + fmt(y20) + '</td>' +
@@ -355,6 +373,16 @@ function renderSection(section)
       '</tr>';
    });
    tbody.innerHTML = html;
+   tfoot.innerHTML = '<tr>' +
+      '<td>Subtotal</td>' +
+      '<td></td>' +
+      '<td></td>' +
+      '<td>' + fmt(totYearly / 12) + '</td>' +
+      '<td>' + fmt(totYearly) + '</td>' +
+      '<td>' + fmt(totYearly * 10) + '</td>' +
+      '<td>' + fmt(totYearly * 20) + '</td>' +
+      '<td></td>' +
+   '</tr>';
 }
 
 function renderTotals()
@@ -508,29 +536,35 @@ function loadSubscriptions()
       .catch(function()
       {
          document.getElementById('rows-subscription').innerHTML =
-            '<tr><td colspan="7" class="text-danger text-center">Failed to load.</td></tr>';
+            '<tr><td colspan="8" class="text-danger text-center">Failed to load.</td></tr>';
       });
 }
 
 function renderSubscriptions()
 {
    var tbody = document.getElementById('rows-subscription');
+   var tfoot = document.getElementById('foot-subscription');
    if (subItems.length === 0)
    {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No items. Click Add to begin.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No items. Click Add to begin.</td></tr>';
+      tfoot.innerHTML = '';
       return;
    }
-   var html = '';
+   var html      = '';
+   var totYearly = 0;
    subItems.forEach(function(item)
    {
       var yearly  = item.item_cost * freqMultiplier(item.frequency);
+      var monthly = yearly / 12;
       var y10     = yearly * 10;
       var y20     = yearly * 20;
       var opacity = item.is_active ? '' : 'opacity:0.45;';
+      if (item.is_active) totYearly += yearly;
       html += '<tr style="' + opacity + '">' +
          '<td>' + escHtml(item.item_name) + '</td>' +
          '<td>' + fmt(item.item_cost) + '</td>' +
          '<td><span class="badge-freq badge-' + item.frequency + '">' + item.frequency + '</span></td>' +
+         '<td>' + fmt(monthly) + '</td>' +
          '<td>' + fmt(yearly) + '</td>' +
          '<td>' + fmt(y10) + '</td>' +
          '<td>' + fmt(y20) + '</td>' +
@@ -545,6 +579,16 @@ function renderSubscriptions()
       '</tr>';
    });
    tbody.innerHTML = html;
+   tfoot.innerHTML = '<tr>' +
+      '<td>Subtotal</td>' +
+      '<td></td>' +
+      '<td></td>' +
+      '<td>' + fmt(totYearly / 12) + '</td>' +
+      '<td>' + fmt(totYearly) + '</td>' +
+      '<td>' + fmt(totYearly * 10) + '</td>' +
+      '<td>' + fmt(totYearly * 20) + '</td>' +
+      '<td></td>' +
+   '</tr>';
 }
 
 function openAddSubModal()

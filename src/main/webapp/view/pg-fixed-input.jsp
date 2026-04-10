@@ -113,6 +113,34 @@
    </div>
 </div>
 
+<!-- SUBSCRIPTIONS -->
+<div class="card shadow-sm mb-4">
+   <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+         <p class="section-heading mb-0">Subscriptions</p>
+         <button class="btn btn-sm btn-primary" onclick="openAddSubModal()">
+            <i class="fa-solid fa-plus"></i> Add
+         </button>
+      </div>
+      <table class="table fi-table mb-0">
+         <thead>
+            <tr>
+               <th>Item</th>
+               <th>Cost</th>
+               <th>Frequency</th>
+               <th>1 Year</th>
+               <th>10 Years</th>
+               <th>20 Years</th>
+               <th style="width:80px"></th>
+            </tr>
+         </thead>
+         <tbody id="rows-subscription">
+            <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
+         </tbody>
+      </table>
+   </div>
+</div>
+
 <!-- TOTALS BAR -->
 <div class="totals-bar mb-4" id="totals-bar">
    <div class="tot-item">
@@ -134,6 +162,59 @@
    <div class="tot-item">
       <div class="tot-label">Daily</div>
       <div class="tot-value" id="tot-daily">—</div>
+   </div>
+</div>
+
+<!-- ADD / EDIT SUBSCRIPTION MODAL -->
+<div class="modal fade" id="subModal" tabindex="-1" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h6 class="modal-title" id="subModalTitle">Add Subscription</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+         </div>
+         <div class="modal-body">
+            <input type="hidden" id="sub-id" value="">
+            <div class="mb-3">
+               <label class="form-label" style="font-size:13px;">Item Name</label>
+               <input type="text" class="form-control form-control-sm" id="sub-name" placeholder="e.g. Netflix">
+            </div>
+            <div class="mb-3">
+               <label class="form-label" style="font-size:13px;">Cost ($)</label>
+               <input type="number" class="form-control form-control-sm" id="sub-cost" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="mb-3">
+               <label class="form-label" style="font-size:13px;">Frequency</label>
+               <select class="form-select form-select-sm" id="sub-frequency">
+                  <option value="Monthly">Monthly</option>
+                  <option value="Quarterly">Quarterly</option>
+                  <option value="Yearly">Yearly</option>
+                  <option value="Weekly">Weekly</option>
+               </select>
+            </div>
+            <div id="sub-modal-error" class="text-danger" style="font-size:12px;display:none;"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveSubItem()">Save</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- DELETE SUBSCRIPTION MODAL -->
+<div class="modal fade" id="subDeleteModal" tabindex="-1" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+         <div class="modal-body text-center py-4">
+            <i class="fa-solid fa-triangle-exclamation text-warning" style="font-size:28px;"></i>
+            <p class="mt-3 mb-1" style="font-size:14px;">Delete <strong id="sub-del-name"></strong>?</p>
+         </div>
+         <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="confirmSubDelete()">Delete</button>
+         </div>
+      </div>
    </div>
 </div>
 
@@ -193,15 +274,20 @@
 </div>
 
 <script>
-var fiItems   = [];
-var deleteId  = -1;
-var itemModal, deleteModal;
+var fiItems      = [];
+var subItems     = [];
+var deleteId     = -1;
+var subDeleteId  = -1;
+var itemModal, deleteModal, subModal, subDeleteModal;
 
 document.addEventListener('DOMContentLoaded', function()
 {
-   itemModal   = new bootstrap.Modal(document.getElementById('itemModal'));
-   deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+   itemModal      = new bootstrap.Modal(document.getElementById('itemModal'));
+   deleteModal    = new bootstrap.Modal(document.getElementById('deleteModal'));
+   subModal       = new bootstrap.Modal(document.getElementById('subModal'));
+   subDeleteModal = new bootstrap.Modal(document.getElementById('subDeleteModal'));
    loadItems();
+   loadSubscriptions();
 });
 
 function freqMultiplier(freq)
@@ -406,6 +492,140 @@ function escHtml(str)
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+}
+
+// --- Subscriptions ---
+
+function loadSubscriptions()
+{
+   fetch('ws/fixed-input', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data)
+      {
+         subItems = data.filter(function(i) { return i.section === 'flexible_subs'; });
+         renderSubscriptions();
+      })
+      .catch(function()
+      {
+         document.getElementById('rows-subscription').innerHTML =
+            '<tr><td colspan="7" class="text-danger text-center">Failed to load.</td></tr>';
+      });
+}
+
+function renderSubscriptions()
+{
+   var tbody = document.getElementById('rows-subscription');
+   if (subItems.length === 0)
+   {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No items. Click Add to begin.</td></tr>';
+      return;
+   }
+   var html = '';
+   subItems.forEach(function(item)
+   {
+      var yearly  = item.item_cost * freqMultiplier(item.frequency);
+      var y10     = yearly * 10;
+      var y20     = yearly * 20;
+      var opacity = item.is_active ? '' : 'opacity:0.45;';
+      html += '<tr style="' + opacity + '">' +
+         '<td>' + escHtml(item.item_name) + '</td>' +
+         '<td>' + fmt(item.item_cost) + '</td>' +
+         '<td><span class="badge-freq badge-' + item.frequency + '">' + item.frequency + '</span></td>' +
+         '<td>' + fmt(yearly) + '</td>' +
+         '<td>' + fmt(y10) + '</td>' +
+         '<td>' + fmt(y20) + '</td>' +
+         '<td><div class="btn-row">' +
+            '<button class="btn btn-xs btn-outline-secondary" style="padding:2px 7px;font-size:11px;" onclick="openEditSubModal(' + item.id + ')">' +
+               '<i class="fa-solid fa-pencil"></i>' +
+            '</button>' +
+            '<button class="btn btn-xs btn-outline-danger" style="padding:2px 7px;font-size:11px;" onclick="openSubDeleteModal(' + item.id + ',\'' + escHtml(item.item_name) + '\')">' +
+               '<i class="fa-solid fa-trash"></i>' +
+            '</button>' +
+         '</div></td>' +
+      '</tr>';
+   });
+   tbody.innerHTML = html;
+}
+
+function openAddSubModal()
+{
+   document.getElementById('sub-id').value        = '';
+   document.getElementById('sub-name').value      = '';
+   document.getElementById('sub-cost').value      = '';
+   document.getElementById('sub-frequency').value = 'Monthly';
+   document.getElementById('subModalTitle').textContent = 'Add Subscription';
+   document.getElementById('sub-modal-error').style.display = 'none';
+   subModal.show();
+}
+
+function openEditSubModal(id)
+{
+   var item = subItems.find(function(i) { return i.id === id; });
+   if (!item) return;
+   document.getElementById('sub-id').value        = item.id;
+   document.getElementById('sub-name').value      = item.item_name;
+   document.getElementById('sub-cost').value      = item.item_cost;
+   document.getElementById('sub-frequency').value = item.frequency;
+   document.getElementById('subModalTitle').textContent = 'Edit Subscription';
+   document.getElementById('sub-modal-error').style.display = 'none';
+   subModal.show();
+}
+
+function saveSubItem()
+{
+   var id    = document.getElementById('sub-id').value;
+   var name  = document.getElementById('sub-name').value.trim();
+   var cost  = parseFloat(document.getElementById('sub-cost').value);
+   var freq  = document.getElementById('sub-frequency').value;
+   var errEl = document.getElementById('sub-modal-error');
+
+   if (!name)
+   {
+      errEl.textContent = 'Item name is required.';
+      errEl.style.display = 'block';
+      return;
+   }
+   if (isNaN(cost) || cost < 0)
+   {
+      errEl.textContent = 'Enter a valid cost.';
+      errEl.style.display = 'block';
+      return;
+   }
+   errEl.style.display = 'none';
+
+   var payload = { section: 'flexible_subs', item_name: name, item_cost: cost, frequency: freq, sort_order: 0, is_active: 1 };
+   var url    = id ? 'ws/fixed-input/' + id : 'ws/fixed-input';
+   var method = id ? 'PUT' : 'POST';
+
+   fetch(url, {
+      method: method,
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+   })
+   .then(function(r) { return r.json(); })
+   .then(function(res)
+   {
+      if (res.status === 'ok') { subModal.hide(); loadSubscriptions(); }
+      else { errEl.textContent = res.msg || 'Save failed.'; errEl.style.display = 'block'; }
+   })
+   .catch(function() { errEl.textContent = 'Network error.'; errEl.style.display = 'block'; });
+}
+
+function openSubDeleteModal(id, name)
+{
+   subDeleteId = id;
+   document.getElementById('sub-del-name').textContent = name;
+   subDeleteModal.show();
+}
+
+function confirmSubDelete()
+{
+   if (subDeleteId < 0) return;
+   fetch('ws/fixed-input/' + subDeleteId, { method: 'DELETE', credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function() { subDeleteModal.hide(); loadSubscriptions(); })
+      .catch(function() { subDeleteModal.hide(); });
 }
 </script>
 

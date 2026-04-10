@@ -89,14 +89,16 @@ public class WorksheetItems extends AllowDeny
       try
       {
          c = Datasource.getConnection(request);
-         String sql = "INSERT INTO worksheet_item (section, item_name, amount, notes, sort_order) " +
-                      "VALUES (?, ?, ?, ?, ?)";
+         String sql = "INSERT INTO worksheet_item (section, item_name, default_item_name, amount, default_amount, notes, sort_order) " +
+                      "VALUES (?, ?, ?, ?, (select max(sort_order)+1))";
          PreparedStatement st = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
          st.setString(1, o.getString("section"));
          st.setString(2, o.getString("item_name"));
-         st.setDouble(3, o.getDouble("amount"));
-         st.setString(4, o.optString("notes", ""));
-         st.setInt(5,    o.optInt("sort_order", 0));
+         st.setString(3, o.getString("item_name"));
+         st.setDouble(4, o.getDouble("amount"));
+         st.setDouble(5, o.getDouble("amount"));
+         st.setString(6, o.optString("notes", ""));
+         //st.setInt(5,    o.optInt("sort_order", 0));
          st.executeUpdate();
 
          ResultSet keys = st.getGeneratedKeys();
@@ -136,16 +138,28 @@ public class WorksheetItems extends AllowDeny
       try
       {
          c = Datasource.getConnection(request);
-         String sql = "UPDATE worksheet_item SET section = ?, item_name = ?, amount = ?, " +
-                      "notes = ?, sort_order = ?, is_active = ? WHERE id = ?";
+         boolean setDefault = o.optBoolean("set_as_default", false);
+         String sql = setDefault
+            ? "UPDATE worksheet_item SET section = ?, item_name = ?, amount = ?, notes = ?, is_active = ?, " +
+              "default_item_name = ?, default_amount = ?, default_is_active = ? WHERE id = ?"
+            : "UPDATE worksheet_item SET section = ?, item_name = ?, amount = ?, notes = ?, is_active = ? WHERE id = ?";
          PreparedStatement st = c.prepareStatement(sql);
          st.setString(1, o.getString("section"));
          st.setString(2, o.getString("item_name"));
          st.setDouble(3, o.getDouble("amount"));
          st.setString(4, o.optString("notes", ""));
-         st.setInt(5,    o.optInt("sort_order", 0));
-         st.setInt(6,    o.optInt("is_active", 1));
-         st.setInt(7, id);
+         st.setInt(5,    o.optInt("is_active", 1));
+         if (setDefault)
+         {
+            st.setString(6, o.getString("item_name"));
+            st.setDouble(7, o.getDouble("amount"));
+            st.setInt(8,    o.optInt("is_active", 1));
+            st.setInt(9, id);
+         }
+         else
+         {
+            st.setInt(6, id);
+         }
          st.executeUpdate();
 
          JSONObject result = new JSONObject();
@@ -155,6 +169,42 @@ public class WorksheetItems extends AllowDeny
       catch (Exception e)
       {
          setError("Failed to update worksheet item: " + e.getMessage());
+         return getError();
+      }
+      finally
+      {
+         if (c != null) try { c.close(); } catch (Exception ignored) {}
+      }
+   }
+
+   // POST /ws/worksheet/reset-cc-defaults
+   // Resets all cc_estimate items to their default name, amount, and active state
+   @POST
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("worksheet/reset-cc-defaults")
+   public String resetCcDefaults(@Context HttpServletRequest request)
+   {
+      JSONObject o = new JSONObject();
+      if (!assertAllow(request, o, "resetCcDefaults"))
+         return getError();
+
+      Connection c = null;
+      try
+      {
+         c = Datasource.getConnection(request);
+         String sql = "UPDATE worksheet_item " +
+                      "SET item_name = default_item_name, amount = default_amount, is_active = default_is_active " +
+                      "WHERE section IN ('cc_estimate', 'cc_balance')";
+         PreparedStatement st = c.prepareStatement(sql);
+         st.executeUpdate();
+
+         JSONObject result = new JSONObject();
+         result.put("status", "ok");
+         return result.toString();
+      }
+      catch (Exception e)
+      {
+         setError("Failed to reset CC estimates: " + e.getMessage());
          return getError();
       }
       finally

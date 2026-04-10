@@ -75,14 +75,45 @@
    <!-- LEFT: CC Estimates + Subscriptions -->
    <div class="col-lg-6">
 
+      <!-- Per Day Estimate Spend -->
+      <div class="card shadow-sm mb-4">
+         <div class="card-body">
+            <p class="ws-section-heading mb-3">Per Day Estimate Spend</p>
+            <table class="table ws-table mb-0">
+               <thead>
+                  <tr>
+                     <th>Days Until Statement</th>
+                     <th>Per Day Target</th>
+                     <th>Remaining Budget</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td id="days-until-stmt">â</td>
+                     <td id="per-day-spend">â</td>
+                     <td id="remaining-budget">â</td>
+                  </tr>
+               </tbody>
+            </table>
+            <div style="font-size:11px;color:#94a3b8;margin-top:8px;">
+               Statement date: 26th of each month &nbsp;&middot;&nbsp; Remaining Budget = Days Until Statement &times; Per Day Spend
+            </div>
+         </div>
+      </div>
+
       <!-- CC Estimates -->
       <div class="card shadow-sm mb-4">
          <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                <p class="ws-section-heading mb-0">Monthly CC Estimates</p>
-               <button class="btn btn-sm btn-primary" onclick="openAddModal('cc_estimate')">
-                  <i class="fa-solid fa-plus"></i> Add
-               </button>
+               <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" onclick="resetCcEstimates()">
+                     <i class="fa-solid fa-rotate-left"></i> Reset
+                  </button>
+                  <button class="btn btn-sm btn-primary" onclick="openAddModal('cc_estimate')">
+                     <i class="fa-solid fa-plus"></i> Add
+                  </button>
+               </div>
             </div>
             <table class="table ws-table mb-0">
                <thead><tr><th>Item</th><th>Amount</th><th style="width:70px"></th></tr></thead>
@@ -92,32 +123,7 @@
                <tfoot>
                   <tr class="total-row">
                      <td>Total</td>
-                     <td id="cc-total">—</td>
-                     <td></td>
-                  </tr>
-               </tfoot>
-            </table>
-         </div>
-      </div>
-
-      <!-- Subscriptions -->
-      <div class="card shadow-sm mb-4">
-         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-               <p class="ws-section-heading mb-0">Subscriptions</p>
-               <button class="btn btn-sm btn-primary" onclick="openAddModal('subscription')">
-                  <i class="fa-solid fa-plus"></i> Add
-               </button>
-            </div>
-            <table class="table ws-table mb-0">
-               <thead><tr><th>Service</th><th>Monthly</th><th style="width:70px"></th></tr></thead>
-               <tbody id="rows-subscription">
-                  <tr><td colspan="3" class="text-center text-muted py-3">Loading...</td></tr>
-               </tbody>
-               <tfoot>
-                  <tr class="total-row">
-                     <td>Total / month</td>
-                     <td id="sub-total">—</td>
+                     <td id="cc-total">â</td>
                      <td></td>
                   </tr>
                </tfoot>
@@ -132,10 +138,13 @@
       <div class="card shadow-sm mb-4">
          <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-               <p class="ws-section-heading mb-0">Interest Income — Current Year</p>
+               <p class="ws-section-heading mb-0">Interest Income â Current Year</p>
                <div class="d-flex align-items-center gap-2">
                   <label style="font-size:12px; color:#64748b; margin:0;">Year:</label>
                   <select class="form-select form-select-sm" id="interest-year-sel" style="width:120px;" onchange="loadInterest()"></select>
+                  <button class="btn btn-sm btn-primary" onclick="openAddIntModal()">
+                     <i class="fa-solid fa-plus"></i> Add
+                  </button>
                </div>
             </div>
 
@@ -144,22 +153,22 @@
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Net Total</div>
-                     <div class="int-value" id="int-net-total">—</div>
+                     <div class="int-value" id="int-net-total">â</div>
                      <div class="tax-rate-note">after tax (47%)</div>
                   </div>
                </div>
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Gross approx.</div>
-                     <div class="int-value" id="int-gross-total">—</div>
+                     <div class="int-value" id="int-gross-total">â</div>
                      <div class="tax-rate-note">net / 0.53</div>
                   </div>
                </div>
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Tax Paid (47%)</div>
-                     <div class="int-value" id="int-tax-paid">—</div>
-                     <div class="tax-rate-note">gross − net</div>
+                     <div class="int-value" id="int-tax-paid">â</div>
+                     <div class="tax-rate-note">gross â net</div>
                   </div>
                </div>
             </div>
@@ -169,9 +178,9 @@
                <div class="d-flex justify-content-between align-items-center">
                   <div>
                      <div style="font-size:12px;font-weight:600;color:#64748b;">ATO Refund Estimate (at 37%)</div>
-                     <div style="font-size:11px;color:#94a3b8;">Tax paid at 47% vs actual 37% bracket — excess refunded</div>
+                     <div style="font-size:11px;color:#94a3b8;">Tax paid at 47% vs actual 37% bracket â excess refunded</div>
                   </div>
-                  <div id="ato-refund" style="font-size:20px;font-weight:700;">—</div>
+                  <div id="ato-refund" style="font-size:20px;font-weight:700;">â</div>
                </div>
             </div>
 
@@ -219,11 +228,18 @@
                <label class="form-label" style="font-size:13px;">Notes (optional)</label>
                <input type="text" class="form-control form-control-sm" id="ws-notes" placeholder="">
             </div>
+            <div class="mb-3">
+               <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="ws-is-active">
+                  <label class="form-check-label" style="font-size:13px;" for="ws-is-active">Is Active</label>
+               </div>
+            </div>
             <div id="ws-modal-error" class="text-danger" style="font-size:12px;display:none;"></div>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary btn-sm" onclick="saveWsItem()">Save</button>
+            <button type="button" class="btn btn-outline-warning btn-sm" id="ws-set-default-btn" style="display:none;" onclick="saveWsItem(true)">Set Default</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveWsItem(false)">Save</button>
          </div>
       </div>
    </div>
@@ -248,8 +264,8 @@
                <input type="number" class="form-control form-control-sm" id="int-amount" min="0" step="0.01">
             </div>
             <div class="mb-2" style="background:#f8fafc;border-radius:4px;padding:10px;">
-               <div style="font-size:12px;color:#64748b;">Gross (net / 0.53): <strong id="int-calc-gross">—</strong></div>
-               <div style="font-size:12px;color:#64748b;">Tax paid (47%): <strong id="int-calc-tax">—</strong></div>
+               <div style="font-size:12px;color:#64748b;">Gross (net / 0.53): <strong id="int-calc-gross">â</strong></div>
+               <div style="font-size:12px;color:#64748b;">Tax paid (47%): <strong id="int-calc-tax">â</strong></div>
             </div>
             <div id="int-modal-error" class="text-danger" style="font-size:12px;display:none;"></div>
          </div>
@@ -331,14 +347,178 @@ function loadWorksheetItems()
       .then(function(data)
       {
          wsItems = data;
-         renderWsSection('cc_estimate',  'rows-cc_estimate',  'cc-total');
-         renderWsSection('subscription', 'rows-subscription', 'sub-total');
+         renderCcEstimates();
+         renderPerDayEstimate();
       })
       .catch(function()
       {
          document.getElementById('rows-cc_estimate').innerHTML =
             '<tr><td colspan="3" class="text-danger text-center">Failed to load.</td></tr>';
       });
+}
+
+var ccBalanceItem    = null;
+var computedMiscSpend = 0;
+
+function renderCcEstimates()
+{
+   var items = wsItems.filter(function(i) { return i.section === 'cc_estimate'; });
+   ccBalanceItem = wsItems.find(function(i) { return i.section === 'cc_balance'; }) || null;
+
+   var tbody = document.getElementById('rows-cc_estimate');
+   var total = 0;
+   var html  = '';
+
+   // Balance row â always first, inline input, save button only
+   var balAmount = ccBalanceItem ? ccBalanceItem.amount : 0;
+   total += balAmount;
+   html += '<tr style="background:#f8fafc;">' +
+      '<td style="font-weight:600;">Current CC Balance</td>' +
+      '<td><input type="number" id="cc-balance-input" class="form-control form-control-sm" ' +
+          'style="width:110px;display:inline-block;" value="' + balAmount.toFixed(2) + '" min="0" step="0.01"></td>' +
+      '<td><button class="btn btn-xs btn-outline-primary" style="padding:2px 7px;font-size:11px;" ' +
+          'onclick="saveCcBalance()" title="Save balance">' +
+          '<i class="fa-solid fa-floppy-disk"></i>' +
+      '</button></td>' +
+   '</tr>';
+
+   // Computed Misc Spending — read-only, derived from per-day target x days remaining
+   total += computedMiscSpend;
+   html += '<tr style="background:#f8fafc;">' +
+      '<td style="font-weight:600;">Computed Misc Spending</td>' +
+      '<td id="cc-computed-misc">' + fmt(computedMiscSpend) + '</td>' +
+      '<td></td>' +
+   '</tr>';
+
+   items.forEach(function(item)
+   {
+      if (item.is_active) total += item.amount;
+      var amtColor = item.is_active ? '' : 'color:#94a3b8;';
+      html += '<tr>' +
+         '<td>' + escHtml(item.item_name) +
+            (item.notes ? '<br><span style="font-size:11px;color:#94a3b8;">' + escHtml(item.notes) + '</span>' : '') +
+         '</td>' +
+         '<td id="cc-amt-' + item.id + '" style="' + amtColor + '">' + fmt(item.amount) + '</td>' +
+         '<td><div style="display:flex;gap:4px;align-items:center;">' +
+            '<input type="checkbox" ' + (item.is_active ? 'checked' : '') + ' ' +
+               'onchange="toggleCcItem(' + item.id + ', this)" ' +
+               'style="margin-right:2px;" title="Include in total">' +
+            '<button class="btn btn-xs btn-outline-secondary" style="padding:2px 7px;font-size:11px;" onclick="openEditWsModal(' + item.id + ')">' +
+               '<i class="fa-solid fa-pencil"></i>' +
+            '</button>' +
+            '<button class="btn btn-xs btn-outline-danger" style="padding:2px 7px;font-size:11px;" onclick="openWsDeleteModal(' + item.id + ',\'' + escHtml(item.item_name) + '\',\'ws\')">' +
+               '<i class="fa-solid fa-trash"></i>' +
+            '</button>' +
+         '</div></td>' +
+      '</tr>';
+   });
+
+   tbody.innerHTML = html;
+   document.getElementById('cc-total').textContent = fmt(total);
+}
+
+function renderPerDayEstimate()
+{
+   var now    = new Date();
+   var today  = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+   var target = now.getDate() < 26
+      ? new Date(now.getFullYear(), now.getMonth(),     26)
+      : new Date(now.getFullYear(), now.getMonth() + 1, 26);
+
+   var days = Math.round((target - today) / (1000 * 60 * 60 * 24));
+   document.getElementById('days-until-stmt').textContent = days;
+
+   fetch('ws/settings/target_per_day_spend', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data)
+      {
+         var perDay = (data.value !== null && data.value !== undefined)
+            ? parseFloat(data.value)
+            : 0;
+         var remaining = days * perDay;
+         document.getElementById('per-day-spend').textContent    = fmt(perDay);
+         document.getElementById('remaining-budget').textContent = fmt(remaining);
+         computedMiscSpend = remaining;
+
+         // Patch the computed misc row and recompute the footer total without re-rendering
+         var miscCell = document.getElementById('cc-computed-misc');
+         if (miscCell) miscCell.textContent = fmt(computedMiscSpend);
+
+         var ccTotal = ccBalanceItem ? ccBalanceItem.amount : 0;
+         ccTotal += computedMiscSpend;
+         wsItems.filter(function(i) { return i.section === 'cc_estimate'; })
+                .forEach(function(i) { if (i.is_active) ccTotal += i.amount; });
+         document.getElementById('cc-total').textContent = fmt(ccTotal);
+      })
+      .catch(function()
+      {
+         document.getElementById('per-day-spend').textContent    = 'â';
+         document.getElementById('remaining-budget').textContent = 'â';
+      });
+}
+
+function toggleCcItem(id, cb)
+{
+   var item = wsItems.find(function(i) { return i.id === id; });
+   if (!item) return;
+
+   item.is_active = cb.checked ? 1 : 0;
+
+   var amtEl = document.getElementById('cc-amt-' + id);
+   if (amtEl) amtEl.style.color = item.is_active ? '' : '#94a3b8';
+
+   var total = ccBalanceItem ? ccBalanceItem.amount : 0;
+   total += computedMiscSpend;
+   wsItems.filter(function(i) { return i.section === 'cc_estimate'; })
+          .forEach(function(i) { if (i.is_active) total += i.amount; });
+   document.getElementById('cc-total').textContent = fmt(total);
+
+   var payload = { section: item.section, item_name: item.item_name, amount: item.amount,
+                   notes: item.notes, sort_order: item.sort_order || 0, is_active: item.is_active };
+   fetch('ws/worksheet/' + id, {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+   }).catch(function() {});
+}
+
+function resetCcEstimates()
+{
+   if (!window.confirm('Reset all CC Estimate items to their default names, amounts and active state?'))
+      return;
+
+   fetch('ws/worksheet/reset-cc-defaults', {
+      method: 'POST',
+      credentials: 'same-origin'
+   })
+   .then(function(r) { return r.json(); })
+   .then(function(res)
+   {
+      if (res.status === 'ok') loadWorksheetItems();
+   })
+   .catch(function() {});
+}
+
+function saveCcBalance()
+{
+   var input  = document.getElementById('cc-balance-input');
+   var amount = parseFloat(input.value);
+   if (isNaN(amount) || amount < 0) return;
+
+   var payload = { section: 'cc_balance', item_name: 'Current CC Balance', amount: amount, notes: '', sort_order: 0, is_active: 1 };
+   var url    = ccBalanceItem ? 'ws/worksheet/' + ccBalanceItem.id : 'ws/worksheet';
+   var method = ccBalanceItem ? 'PUT' : 'POST';
+
+   fetch(url, {
+      method: method,
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+   })
+   .then(function(r) { return r.json(); })
+   .then(function(res) { if (res.status === 'ok') loadWorksheetItems(); })
+   .catch(function() {});
 }
 
 function renderWsSection(section, tbodyId, totalId)
@@ -401,7 +581,7 @@ function renderInterest(year)
 
    if (intRecords.length === 0)
    {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No records for ' + escHtml(year) + '. Click the edit button on a month to add.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No records for ' + escHtml(year) + '.</td></tr>';
       updateInterestSummary(0);
       return;
    }
@@ -462,7 +642,9 @@ function openAddModal(section)
    document.getElementById('ws-notes').value   = '';
    document.getElementById('wsModalTitle').textContent = section === 'subscription' ? 'Add Subscription' : 'Add CC Estimate';
    document.getElementById('ws-name-label').textContent = section === 'subscription' ? 'Service Name' : 'Item Name';
+   document.getElementById('ws-is-active').checked = true;
    document.getElementById('ws-modal-error').style.display = 'none';
+   document.getElementById('ws-set-default-btn').style.display = 'none';
    wsModal.show();
 }
 
@@ -477,11 +659,13 @@ function openEditWsModal(id)
    document.getElementById('ws-notes').value   = item.notes;
    document.getElementById('wsModalTitle').textContent = 'Edit Item';
    document.getElementById('ws-name-label').textContent = item.section === 'subscription' ? 'Service Name' : 'Item Name';
+   document.getElementById('ws-is-active').checked = item.is_active === 1;
    document.getElementById('ws-modal-error').style.display = 'none';
+   document.getElementById('ws-set-default-btn').style.display = item.section === 'cc_estimate' ? '' : 'none';
    wsModal.show();
 }
 
-function saveWsItem()
+function saveWsItem(setDefault)
 {
    var id      = document.getElementById('ws-id').value;
    var section = document.getElementById('ws-section').value;
@@ -504,7 +688,9 @@ function saveWsItem()
    }
    errEl.style.display = 'none';
 
-   var payload = { section: section, item_name: name, amount: amount, notes: notes, sort_order: 0, is_active: 1 };
+   var isActive = document.getElementById('ws-is-active').checked ? 1 : 0;
+   var payload = { section: section, item_name: name, amount: amount, notes: notes, sort_order: 0, is_active: isActive,
+                   set_as_default: setDefault ? true : false };
    var url    = id ? 'ws/worksheet/' + id : 'ws/worksheet';
    var method = id ? 'PUT' : 'POST';
 
@@ -530,8 +716,8 @@ function openAddIntModal()
    document.getElementById('int-id').value     = '';
    document.getElementById('int-date').value   = '';
    document.getElementById('int-amount').value = '';
-   document.getElementById('int-calc-gross').textContent = '—';
-   document.getElementById('int-calc-tax').textContent   = '—';
+   document.getElementById('int-calc-gross').textContent = 'â';
+   document.getElementById('int-calc-tax').textContent   = 'â';
    document.getElementById('intModalTitle').textContent  = 'Add Interest Record';
    document.getElementById('int-modal-error').style.display = 'none';
    intModalObj.show();
@@ -561,8 +747,8 @@ function updateIntCalc()
    }
    else
    {
-      document.getElementById('int-calc-gross').textContent = '—';
-      document.getElementById('int-calc-tax').textContent   = '—';
+      document.getElementById('int-calc-gross').textContent = 'â';
+      document.getElementById('int-calc-tax').textContent   = 'â';
    }
 }
 

@@ -72,6 +72,9 @@
                <div class="br-item"><div class="br-label">Closing</div><div class="br-value" id="br-close">--</div></div>
                <div class="ms-auto d-flex gap-2 align-items-center">
                   <span id="reconcile-badge"></span>
+                  <button class="btn btn-sm btn-outline-secondary" style="font-size:11px;" id="clone-btn" onclick="clonePrevMonth()" disabled>
+                     <i class="fa-solid fa-copy"></i> Clone Prev
+                  </button>
                   <button class="btn btn-sm btn-outline-secondary" style="font-size:11px;" onclick="toggleReconcile()">
                      <i class="fa-solid fa-check"></i> <span id="reconcile-btn-lbl">Mark Reconciled</span>
                   </button>
@@ -270,6 +273,42 @@ function loadFixed()
       });
 }
 
+function loadPrevYearEntries(prevYearId)
+{
+   if (allYearMonths[prevYearId]) return Promise.resolve();
+
+   return fetch('ws/months?year_id=' + prevYearId, { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data)
+      {
+         allYearMonths[prevYearId] = data;
+         var fetches = data.map(function(m)
+         {
+            return fetch('ws/entries?month_id=' + m.id, { credentials: 'same-origin' })
+               .then(function(r) { return r.json(); })
+               .then(function(ents) { allYearEntries[m.id] = ents; });
+         });
+         return Promise.all(fetches);
+      });
+}
+
+function calcPrevYearClose(year)
+{
+   var idx      = years.findIndex(function(y) { return y.id === year.id; });
+   var prevYear = idx > 0 ? years[idx - 1] : null;
+   if (!prevYear || !allYearMonths[prevYear.id]) return year.opening_balance;
+
+   var balance = calcPrevYearClose(prevYear);
+   allYearMonths[prevYear.id].forEach(function(m)
+   {
+      var ents = allYearEntries[m.id] || [];
+      var d    = ents.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+      var c    = ents.filter(function(e) { return e.entry_type === 'CREDIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+      balance  = balance - d + c;
+   });
+   return balance;
+}
+
 function loadYears(initYear, initMonth)
 {
    fetch('ws/years', { credentials: 'same-origin' })
@@ -305,11 +344,15 @@ function selectYear(yearId, monthNo)
    activeMonthNo = monthNo || 1;
    renderYearSelector();
 
+   var yearIdx  = years.findIndex(function(y) { return y.id === yearId; });
+   var prevYear = yearIdx > 0 ? years[yearIdx - 1] : null;
+
    if (allYearMonths[yearId])
    {
       months = allYearMonths[yearId];
       renderMonthTabs();
-      selectMonth(activeMonthNo);
+      var prevLoad = prevYear ? loadPrevYearEntries(prevYear.id) : Promise.resolve();
+      prevLoad.then(function() { selectMonth(activeMonthNo); });
       return;
    }
 
@@ -333,7 +376,9 @@ function selectYear(yearId, monthNo)
             .then(function(r) { return r.json(); })
             .then(function(recs) { interestRecords = recs; });
 
-         return Promise.all(fetches.concat([intFetch]));
+         var prevFetch = prevYear ? loadPrevYearEntries(prevYear.id) : Promise.resolve();
+
+         return Promise.all(fetches.concat([intFetch, prevFetch]));
       })
       .then(function() { selectMonth(activeMonthNo); });
 }
@@ -395,6 +440,7 @@ function renderEntries()
 
    updateBalanceRibbon(debitTotal, creditTotal);
    updateReconcileBadge();
+   updateCloneButton();
 }
 
 function renderEntryRows(list)
@@ -443,7 +489,7 @@ function updateBalanceRibbon(debitTotal, creditTotal)
 
 function calcMonthOpening(monthNo, year)
 {
-   var balance = year ? year.opening_balance : 0;
+   var balance = year ? calcPrevYearClose(year) : 0;
    for (var mn = 1; mn < monthNo; mn++)
    {
       var m    = months.find(function(x) { return x.month_number === mn; });
@@ -503,7 +549,8 @@ function updateSummaryPanel()
    var year = years.find(function(y) { return y.id === activeYearId; });
    if (!year) return;
 
-   var balance    = year.opening_balance;
+   var opening    = calcPrevYearClose(year);
+   var balance    = opening;
    var totalDebit = 0;
    months.forEach(function(m)
    {
@@ -514,7 +561,7 @@ function updateSummaryPanel()
       totalDebit += d;
    });
 
-   var gain   = balance - year.opening_balance;
+   var gain   = balance - opening;
    var disc   = Math.max(0, totalDebit - fixedYearly);
    var onTgt  = gain - year.target_gain;
 
@@ -523,7 +570,7 @@ function updateSummaryPanel()
    var taxPaid  = grossInt - netInt;
    var refund   = taxPaid - (grossInt * 0.37);
 
-   document.getElementById('sp-yr-open').textContent     = fmt(year.opening_balance);
+   document.getElementById('sp-yr-open').textContent     = fmt(opening);
    document.getElementById('sp-yr-close').textContent    = fmt(balance);
    document.getElementById('sp-target').textContent      = fmt(year.target_gain);
    document.getElementById('sp-fixed').textContent       = fmt(fixedYearly);
@@ -655,6 +702,61 @@ function reloadMonthEntries()
          renderEntries();
          updateSummaryPanel();
       });
+}
+
+function updateCloneButton()
+{
+   var btn = document.getElementById('clone-btn');
+   if (btn) btn.disabled = entries.length > 0;
+}
+
+function getPrevMonthEntries()
+{
+   if (activeMonthNo > 1)
+   {
+      var prevMonth = months.find(function(m) { return m.month_number === activeMonthNo - 1; });
+      if (!prevMonth) return [];
+      return allYearEntries[prevMonth.id] || [];
+   }
+
+   // First month of year — look at previous year's month 12
+   var yearIdx  = years.findIndex(function(y) { return y.id === activeYearId; });
+   var prevYear = yearIdx > 0 ? years[yearIdx - 1] : null;
+   if (!prevYear || !allYearMonths[prevYear.id]) return [];
+   var lastMonth = allYearMonths[prevYear.id].find(function(m) { return m.month_number === 12; });
+   if (!lastMonth) return [];
+   return allYearEntries[lastMonth.id] || [];
+}
+
+function clonePrevMonth()
+{
+   var prevEntries = getPrevMonthEntries();
+   if (prevEntries.length === 0)
+   {
+      alert('No entries in the previous month to clone.');
+      return;
+   }
+
+   var promises = prevEntries.map(function(e)
+   {
+      var payload = {
+         entry_type:  e.entry_type,
+         category:    e.category,
+         description: e.description,
+         amount:      e.amount,
+         is_actual:   0,
+         sort_order:  e.sort_order || 0,
+         month_id:    activeMonthId
+      };
+      return fetch('ws/entries', {
+         method: 'POST',
+         credentials: 'same-origin',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(payload)
+      }).then(function(r) { return r.json(); });
+   });
+
+   Promise.all(promises).then(function() { reloadMonthEntries(); });
 }
 
 function fmt(n)

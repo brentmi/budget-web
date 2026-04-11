@@ -207,6 +207,42 @@ function loadFixed()
       });
 }
 
+function loadPrevYearEntries(prevYearId)
+{
+   if (allMonths[prevYearId]) return Promise.resolve();
+
+   return fetch('ws/months?year_id=' + prevYearId, { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data)
+      {
+         allMonths[prevYearId] = data;
+         var fetches = data.map(function(m)
+         {
+            return fetch('ws/entries?month_id=' + m.id, { credentials: 'same-origin' })
+               .then(function(r) { return r.json(); })
+               .then(function(entries) { allEntries[m.id] = entries; });
+         });
+         return Promise.all(fetches);
+      });
+}
+
+function calcPrevYearClose(year)
+{
+   var idx      = years.findIndex(function(y) { return y.id === year.id; });
+   var prevYear = idx > 0 ? years[idx - 1] : null;
+   if (!prevYear || !allMonths[prevYear.id]) return year.opening_balance;
+
+   var balance = calcPrevYearClose(prevYear);
+   allMonths[prevYear.id].forEach(function(m)
+   {
+      var ents = allEntries[m.id] || [];
+      var d    = ents.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+      var c    = ents.filter(function(e) { return e.entry_type === 'CREDIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+      balance  = balance - d + c;
+   });
+   return balance;
+}
+
 function loadYears()
 {
    fetch('ws/years', { credentials: 'same-origin' })
@@ -249,9 +285,13 @@ function selectYear(yearId)
    renderTabs();
    document.getElementById('year-content').style.display = '';
 
+   var yearIdx  = years.findIndex(function(y) { return y.id === yearId; });
+   var prevYear = yearIdx > 0 ? years[yearIdx - 1] : null;
+
    if (allMonths[yearId])
    {
-      renderYear(yearId);
+      var prevLoad = prevYear ? loadPrevYearEntries(prevYear.id) : Promise.resolve();
+      prevLoad.then(function() { renderYear(yearId); });
       return;
    }
 
@@ -267,7 +307,8 @@ function selectYear(yearId)
                .then(function(r) { return r.json(); })
                .then(function(entries) { allEntries[m.id] = entries; });
          });
-         return Promise.all(fetches);
+         var prevFetch = prevYear ? loadPrevYearEntries(prevYear.id) : Promise.resolve();
+         return Promise.all(fetches.concat([prevFetch]));
       })
       .then(function() { renderYear(yearId); });
 }
@@ -278,7 +319,7 @@ function renderYear(yearId)
    var months = allMonths[yearId] || [];
 
    // Calculate running balances
-   var opening   = year.opening_balance;
+   var opening   = calcPrevYearClose(year);
    var balance   = opening;
    var totalDebit  = 0;
    var totalCredit = 0;
@@ -415,27 +456,30 @@ function showAddYear()
    var nextSDate  = nextStart + '-07-01';
    var nextEDate  = nextEnd   + '-06-30';
 
-   // Projected closing balance of last year as suggested opening
-   var months    = allMonths[lastYear.id] || [];
-   var projClose = lastYear.opening_balance;
-   months.forEach(function(m)
-   {
-      var entries = allEntries[m.id] || [];
-      var debits  = entries.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
-      var credits = entries.filter(function(e) { return e.entry_type === 'CREDIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
-      projClose = projClose - debits + credits;
-   });
-
    document.getElementById('addYearTitle').textContent  = 'Add Year: ' + nextLabel;
    document.getElementById('add-year-desc').textContent = 'Creates ' + nextLabel + ' (' + nextSDate + ' to ' + nextEDate + ') with 12 blank months.';
-   document.getElementById('new-year-opening').value    = Math.round(projClose * 100) / 100;
+   document.getElementById('new-year-opening').value    = '';
    document.getElementById('new-year-target').value     = 20000;
    document.getElementById('add-year-error').style.display = 'none';
 
-   // Store next year data for the confirm handler
    document.getElementById('addYearModal').dataset.nextLabel = nextLabel;
    document.getElementById('addYearModal').dataset.nextSDate = nextSDate;
    document.getElementById('addYearModal').dataset.nextEDate = nextEDate;
+
+   // Ensure lastYear's entries are loaded before computing the projected close
+   loadPrevYearEntries(lastYear.id).then(function()
+   {
+      var months    = allMonths[lastYear.id] || [];
+      var projClose = calcPrevYearClose(lastYear);
+      months.forEach(function(m)
+      {
+         var entries = allEntries[m.id] || [];
+         var debits  = entries.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+         var credits = entries.filter(function(e) { return e.entry_type === 'CREDIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+         projClose   = projClose - debits + credits;
+      });
+      document.getElementById('new-year-opening').value = Math.round(projClose * 100) / 100;
+   });
 
    addYearModal.show();
 }

@@ -189,19 +189,49 @@ function applyDateRangeForSelection()
    document.getElementById('disc-to').value   = last;
 }
 
-// Build [{date, balance, yearLabel}] across selected years in order
+// Build [{date, balance, yearLabel}] across selected years in order.
+// The balance always chains from the very first year in allYears, so individual
+// year tabs for non-first years show the correct projected opening balance rather
+// than the static value stored in financial_year.opening_balance.
 function buildBalancePoints()
 {
    var points = [];
-   selectedYears.forEach(function(yid)
+
+   // Identify where in allYears the current selection begins.
+   var firstYid = selectedYears[0];
+   var startIdx = allYears.findIndex(function(y) { return y.id === firstYid; });
+
+   // Pre-compute the chained balance up to (but not including) startIdx.
+   // If the selection starts at year 0 there is nothing to pre-compute.
+   var chainBalance = null;
+   if (startIdx > 0)
+   {
+      chainBalance = allYears[0].opening_balance;
+      for (var i = 0; i < startIdx; i++)
+      {
+         var prevData = allMonthData[allYears[i].id] || [];
+         prevData.forEach(function(md)
+         {
+            var d = md.entries.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+            var c = md.entries.filter(function(e) { return e.entry_type === 'CREDIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
+            chainBalance = chainBalance - d + c;
+         });
+      }
+   }
+
+   selectedYears.forEach(function(yid, selIdx)
    {
       var year = allYears.find(function(y) { return y.id === yid; });
       if (!year) return;
       var monthData = allMonthData[yid] || [];
-      var balance   = year.opening_balance;
 
-      // Opening point = start_date of year
-      points.push({ date: year.start_date, balance: balance, yearLabel: year.year_label });
+      var balance = (chainBalance !== null) ? chainBalance : year.opening_balance;
+
+      // Opening point shown only for the first year in the current selection.
+      if (selIdx === 0)
+      {
+         points.push({ date: year.start_date, balance: balance, yearLabel: year.year_label });
+      }
 
       monthData.forEach(function(md, idx)
       {
@@ -219,7 +249,10 @@ function buildBalancePoints()
          points.push({ date: dateStr, balance: balance, yearLabel: year.year_label,
                        month: MONTH_NAMES[idx], debits: debits, credits: credits });
       });
+
+      chainBalance = balance;   // carry forward to next year in selection
    });
+
    points.sort(function(a, b) { return a.date.localeCompare(b.date); });
    return points;
 }

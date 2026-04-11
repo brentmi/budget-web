@@ -90,7 +90,7 @@ public class WorksheetItems extends AllowDeny
       {
          c = Datasource.getConnection(request);
          String sql = "INSERT INTO worksheet_item (section, item_name, default_item_name, amount, default_amount, notes, sort_order) " +
-                      "VALUES (?, ?, ?, ?, (select max(sort_order)+1))";
+                      "VALUES (?, ?, ?, ?, ?, ?, (select (max(sort_order)+1)))";
          PreparedStatement st = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
          st.setString(1, o.getString("section"));
          st.setString(2, o.getString("item_name"));

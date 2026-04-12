@@ -239,22 +239,35 @@ var activeMonthId = -1;
 var MONTH_NAMES = ['July','August','September','October','November','December',
                    'January','February','March','April','May','June'];
 
-var DEBIT_CATS  = ['cc_payment','mortgage','misc','other'];
-var CREDIT_CATS = ['wages','rent','interest','dividend','ato_refund','other'];
+var DEBIT_CATS  = [];
+var CREDIT_CATS = [];
 
 var entryModal, entDeleteModal;
 var deleteEntryId = -1;
+
+function loadCategories()
+{
+   return fetch('ws/entry-categories', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data)
+      {
+         DEBIT_CATS  = data.DEBIT  || [];
+         CREDIT_CATS = data.CREDIT || [];
+      });
+}
 
 document.addEventListener('DOMContentLoaded', function()
 {
    entryModal     = new bootstrap.Modal(document.getElementById('entryModal'));
    entDeleteModal = new bootstrap.Modal(document.getElementById('entDeleteModal'));
 
-   var params     = new URLSearchParams(window.location.search);
-   var initYear   = params.get('year_id') ? parseInt(params.get('year_id')) : -1;
-   var initMonth  = params.get('month')   ? parseInt(params.get('month'))   : 1;
+   var params      = new URLSearchParams(window.location.search);
+   var initYear    = params.get('year_id') ? parseInt(params.get('year_id')) : -1;
+   var calMonth    = new Date().getMonth() + 1; // 1–12
+   var curFyMonth  = calMonth >= 7 ? calMonth - 6 : calMonth + 6; // July=1 … June=12
+   var initMonth   = params.get('month') ? parseInt(params.get('month')) : curFyMonth;
 
-   loadFixed().then(function() { loadYears(initYear, initMonth); });
+   loadCategories().then(function() { return loadFixed(); }).then(function() { loadYears(initYear, initMonth); });
 });
 
 function loadFixed()

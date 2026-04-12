@@ -286,6 +286,9 @@
                            <li <%=menuItem.equals("pg-categories")?"class=\"active\"":"" %>>
                               <a href="/budgetapi?rq=pg-categories"><i class="fa-solid fa-pencil nav-icon"></i> Categories</a>
                            </li>
+                           <li <%=menuItem.equals("pg-settings")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=pg-settings"><i class="fa-solid fa-pencil nav-icon"></i> Settings</a>
+                           </li>
                            
                         </ul>
                      </li>

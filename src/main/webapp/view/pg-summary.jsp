@@ -51,7 +51,7 @@
       <div class="card shadow-sm">
          <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-               <div class="section-title mb-0">Discretionary Spend — Monthly</div>
+               <div class="section-title mb-0" id="disc-chart-title">Discretionary Spend — Monthly</div>
                <div class="d-flex gap-2 align-items-center flex-wrap">
                   <label style="font-size:12px;color:#64748b;margin:0;">From:</label>
                   <input type="date" class="form-control form-control-sm" id="disc-from" style="width:140px;" onchange="renderDiscChart()">
@@ -265,20 +265,18 @@ function buildDiscPoints()
       var year      = allYears.find(function(y) { return y.id === yid; });
       if (!year) return;
       var monthData = allMonthData[yid] || [];
-      var fixedPerMonth = fixedYearly / 12;
 
       monthData.forEach(function(md, idx)
       {
          var debits = md.entries.filter(function(e) { return e.entry_type === 'DEBIT'; }).reduce(function(s,e) { return s+e.amount; }, 0);
-         var disc   = Math.max(0, debits - fixedPerMonth);
 
-         var yr     = parseInt(year.start_date.substring(0, 4));
-         var calMo  = md.month.month_number <= 6 ? md.month.month_number + 6 : md.month.month_number - 6;
-         var calYr  = md.month.month_number <= 6 ? yr : yr + 1;
+         var yr      = parseInt(year.start_date.substring(0, 4));
+         var calMo   = md.month.month_number <= 6 ? md.month.month_number + 6 : md.month.month_number - 6;
+         var calYr   = md.month.month_number <= 6 ? yr : yr + 1;
          var lastDay = new Date(calYr, calMo, 0).getDate();
          var dateStr = calYr + '-' + pad(calMo) + '-' + pad(lastDay);
 
-         points.push({ date: dateStr, disc: disc, label: MONTH_NAMES[idx] + ' ' + calYr });
+         points.push({ date: dateStr, debits: debits, label: MONTH_NAMES[idx] + ' ' + calYr });
       });
    });
    points.sort(function(a, b) { return a.date.localeCompare(b.date); });
@@ -328,12 +326,18 @@ function renderDiscChart()
       return (!from || p.date >= from) && (!to || p.date <= to);
    });
 
-   var labels = points.map(function(p) { return p.label; });
-   var values = points.map(function(p) { return p.disc; });
+   var labels       = points.map(function(p) { return p.label; });
+   var avgFixed     = fixedYearly / 12;
+   var fixedRounded = Math.round(avgFixed);
+   var fixedLabel   = '$' + fixedRounded.toLocaleString('en-AU');
 
-   // Colour bars: above fixedPerMonth/month = red, below = green
-   var avgFixed = fixedYearly / 12;
-   var colors   = values.map(function(v) { return v > avgFixed ? 'rgba(239,68,68,0.7)' : 'rgba(34,197,94,0.7)'; });
+   document.getElementById('disc-chart-title').textContent =
+      'Discretionary Spend — Monthly (Minimum Fixed: ' + fixedLabel + ')';
+
+   // Bottom segment: spend up to the fixed threshold (green).
+   // Top segment: spend above the fixed threshold (red).
+   var baseValues = points.map(function(p) { return Math.min(Math.round(p.debits), fixedRounded); });
+   var overValues = points.map(function(p) { return Math.max(0, Math.round(p.debits) - fixedRounded); });
 
    if (discChart) { discChart.destroy(); discChart = null; }
    var ctx = document.getElementById('discChart').getContext('2d');
@@ -341,15 +345,62 @@ function renderDiscChart()
       type: 'bar',
       data: {
          labels: labels,
-         datasets: [{
-            label: 'Discretionary',
-            data: values,
-            backgroundColor: colors,
-            borderRadius: 3
-         }]
+         datasets: [
+            {
+               label: 'Base Spend',
+               data: baseValues,
+               backgroundColor: 'rgba(34,197,94,0.7)',
+               stack: 'spend',
+               borderRadius: 0,
+               order: 2
+            },
+            {
+               label: 'Above Fixed',
+               data: overValues,
+               backgroundColor: 'rgba(239,68,68,0.7)',
+               stack: 'spend',
+               borderRadius: 3,
+               order: 2
+            },
+            {
+               type: 'line',
+               label: 'Minimum Fixed: ' + fixedLabel,
+               data: labels.map(function() { return fixedRounded; }),
+               borderColor: 'rgba(100,116,139,0.8)',
+               borderWidth: 2,
+               borderDash: [6, 4],
+               pointRadius: 0,
+               fill: false,
+               order: 1
+            }
+         ]
       },
-      options: chartOptions(function(v) { return '$' + (v/1000).toFixed(1) + 'k'; })
+      options: discChartOptions()
    });
+}
+
+function discChartOptions()
+{
+   return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+         legend: { display: true, labels: { font: { size: 11 }, boxWidth: 12 } },
+         tooltip: {
+            callbacks: {
+               label: function(c)
+               {
+                  if (c.parsed.y === 0) return null;
+                  return c.dataset.label + ': ' + fmt(c.parsed.y);
+               }
+            }
+         }
+      },
+      scales: {
+         x: { stacked: true, ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 18 }, grid: { display: false } },
+         y: { stacked: true, ticks: { font: { size: 11 }, callback: function(v) { return '$' + (v/1000).toFixed(1) + 'k'; } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+      }
+   };
 }
 
 function chartOptions(yFormatter)

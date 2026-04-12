@@ -104,7 +104,7 @@
                   </tr>
                </tfoot>
             </table>
-            <button class="btn btn-sm btn-outline-danger mb-4" style="font-size:12px;" onclick="openAddEntry('DEBIT')">
+            <button id="add-debit-btn" class="btn btn-sm btn-outline-danger mb-4" style="font-size:12px;" onclick="openAddEntry('DEBIT')">
                <i class="fa-solid fa-plus"></i> Add Debit
             </button>
 
@@ -131,7 +131,7 @@
                   </tr>
                </tfoot>
             </table>
-            <button class="btn btn-sm btn-outline-success mb-2" style="font-size:12px;" onclick="openAddEntry('CREDIT')">
+            <button id="add-credit-btn" class="btn btn-sm btn-outline-success mb-2" style="font-size:12px;" onclick="openAddEntry('CREDIT')">
                <i class="fa-solid fa-plus"></i> Add Credit
             </button>
 
@@ -442,9 +442,11 @@ function renderEntries()
 {
    var debits  = entries.filter(function(e) { return e.entry_type === 'DEBIT'; });
    var credits = entries.filter(function(e) { return e.entry_type === 'CREDIT'; });
+   var month   = months.find(function(m) { return m.month_number === activeMonthNo; });
+   var locked  = month ? !!month.is_reconciled : false;
 
-   document.getElementById('rows-debit').innerHTML  = renderEntryRows(debits);
-   document.getElementById('rows-credit').innerHTML = renderEntryRows(credits);
+   document.getElementById('rows-debit').innerHTML  = renderEntryRows(debits,  locked);
+   document.getElementById('rows-credit').innerHTML = renderEntryRows(credits, locked);
 
    var debitTotal  = debits.reduce(function(s, e)  { return s + e.amount; }, 0);
    var creditTotal = credits.reduce(function(s, e) { return s + e.amount; }, 0);
@@ -454,13 +456,15 @@ function renderEntries()
    updateBalanceRibbon(debitTotal, creditTotal);
    updateReconcileBadge();
    updateCloneButton();
+   updatePageLockState(locked);
 }
 
-function renderEntryRows(list)
+function renderEntryRows(list, locked)
 {
    if (list.length === 0)
       return '<tr><td colspan="5" class="text-muted text-center py-3" style="font-size:12px;">None yet.</td></tr>';
 
+   var dis = locked ? ' disabled' : '';
    return list.map(function(e)
    {
       return '<tr class="entry-row">' +
@@ -471,10 +475,10 @@ function renderEntryRows(list)
             '<span class="actual-dot ' + (e.is_actual ? 'yes' : 'no') + '"></span>' +
          '</td>' +
          '<td class="entry-td"><div style="display:flex;gap:4px;">' +
-            '<button class="btn btn-xs btn-outline-secondary" style="padding:2px 6px;font-size:11px;" onclick="openEditEntry(' + e.id + ')">' +
+            '<button class="btn btn-xs btn-outline-secondary" style="padding:2px 6px;font-size:11px;"' + dis + ' onclick="openEditEntry(' + e.id + ')">' +
                '<i class="fa-solid fa-pencil"></i>' +
             '</button>' +
-            '<button class="btn btn-xs btn-outline-danger" style="padding:2px 6px;font-size:11px;" onclick="openDeleteEntry(' + e.id + ',\'' + escHtml(e.description) + '\')">' +
+            '<button class="btn btn-xs btn-outline-danger" style="padding:2px 6px;font-size:11px;"' + dis + ' onclick="openDeleteEntry(' + e.id + ',\'' + escHtml(e.description) + '\')">' +
                '<i class="fa-solid fa-trash"></i>' +
             '</button>' +
          '</div></td>' +
@@ -551,7 +555,7 @@ function toggleReconcile()
       if (res.status === 'ok')
       {
          month.is_reconciled = newVal;
-         updateReconcileBadge();
+         renderEntries();
          renderMonthTabs();
       }
    });
@@ -721,6 +725,16 @@ function updateCloneButton()
 {
    var btn = document.getElementById('clone-btn');
    if (btn) btn.disabled = entries.length > 0;
+}
+
+function updatePageLockState(isReconciled)
+{
+   var addDebit  = document.getElementById('add-debit-btn');
+   var addCredit = document.getElementById('add-credit-btn');
+   var cloneBtn  = document.getElementById('clone-btn');
+   if (addDebit)  addDebit.disabled  = isReconciled;
+   if (addCredit) addCredit.disabled = isReconciled;
+   if (cloneBtn && isReconciled) cloneBtn.disabled = true;
 }
 
 function getPrevMonthEntries()

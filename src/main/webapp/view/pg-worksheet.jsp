@@ -138,7 +138,7 @@
       <div class="card shadow-sm mb-4">
          <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-               <p class="ws-section-heading mb-0">Interest Income â Current Year</p>
+               <p class="ws-section-heading mb-0">Interest Income - Current Year</p>
                <div class="d-flex align-items-center gap-2">
                   <label style="font-size:12px; color:#64748b; margin:0;">Year:</label>
                   <select class="form-select form-select-sm" id="interest-year-sel" style="width:120px;" onchange="loadInterest()"></select>
@@ -332,9 +332,17 @@ function loadYears()
             opt.textContent = y.year_label;
             sel.appendChild(opt);
          });
-         // Default to most recent year
+         // Default to current financial year (July–June), fall back to most recent
          if (years.length > 0)
-            sel.value = years[years.length - 1].year_label;
+         {
+            var now      = new Date();
+            var mo       = now.getMonth(); // 0=Jan … 11=Dec
+            var yr       = now.getFullYear();
+            var fyStart  = mo >= 6 ? yr : yr - 1;
+            var fyLabel  = fyStart + '-' + (fyStart + 1);
+            var matched  = years.find(function(y) { return y.year_label === fyLabel; });
+            sel.value    = matched ? fyLabel : years[years.length - 1].year_label;
+         }
          loadInterest();
       })
       .catch(function() { loadInterest(); });

@@ -293,11 +293,17 @@
                      <li>
                         <a href="#"><i class="fa-solid fa-tv nav-icon"></i> Transaction View</a>
                         <ul>
+                           <li <%=menuItem.equals("tx-dashboard")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=tx-dashboard"><i class="fa-solid fa-chart-pie nav-icon"></i> Tx Dashboard</a>
+                           </li>
+                           <li <%=menuItem.equals("tx-explore")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=tx-explore"><i class="fa-solid fa-magnifying-glass-chart nav-icon"></i> Tx Explorer</a>
+                           </li>
                            <li <%=menuItem.equals("tx-categories")?"class=\"active\"":"" %>>
-                              <a href="/budgetapi?rq=tx-categories"><i class="fa-solid fa-pencil nav-icon"></i> Categories</a>
+                              <a href="/budgetapi?rq=tx-categories"><i class="fa-solid fa-tags nav-icon"></i> Categories</a>
                            </li>
                            <li <%=menuItem.equals("tx-upload")?"class=\"active\"":"" %>>
-                              <a href="/budgetapi?rq=tx-upload"><i class="fa-solid fa-pencil nav-icon"></i> Upload Tx</a>
+                              <a href="/budgetapi?rq=tx-upload"><i class="fa-solid fa-file-arrow-up nav-icon"></i> Upload Tx</a>
                            </li>
                         </ul>
                      </li>

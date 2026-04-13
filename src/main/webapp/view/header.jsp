@@ -299,11 +299,14 @@
                            <li <%=menuItem.equals("tx-explore")?"class=\"active\"":"" %>>
                               <a href="/budgetapi?rq=tx-explore"><i class="fa-solid fa-magnifying-glass-chart nav-icon"></i> Tx Explorer</a>
                            </li>
+                           <li <%=menuItem.equals("tx-insights")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=tx-insights"><i class="fa-solid fa-lightbulb nav-icon"></i> Tx Insights</a>
+                           </li>
                            <li <%=menuItem.equals("tx-categories")?"class=\"active\"":"" %>>
                               <a href="/budgetapi?rq=tx-categories"><i class="fa-solid fa-tags nav-icon"></i> Categories</a>
                            </li>
                            <li <%=menuItem.equals("tx-upload")?"class=\"active\"":"" %>>
-                              <a href="/budgetapi?rq=tx-upload"><i class="fa-solid fa-file-arrow-up nav-icon"></i> Upload Tx</a>
+                              <a href="/budgetapi?rq=tx-upload"><i class="fa-solid fa-file-arrow-up nav-icon"></i> Tx Upload</a>
                            </li>
                         </ul>
                      </li>

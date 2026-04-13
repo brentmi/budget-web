@@ -54,6 +54,7 @@
 
       <link href="view/css/diff2html.min.css" rel="stylesheet">
       <script src="view/js/diff2html.min.js" type="text/javascript"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
       
       
       <script type="text/javascript">
@@ -283,13 +284,21 @@
                            <li <%=menuItem.equals("pg-super")?"class=\"active\"":"" %>>
                               <a href="/budgetapi?rq=pg-super"><i class="fa-solid fa-pencil nav-icon"></i> Superannuation</a>
                            </li>
-                           <li <%=menuItem.equals("pg-categories")?"class=\"active\"":"" %>>
-                              <a href="/budgetapi?rq=pg-categories"><i class="fa-solid fa-pencil nav-icon"></i> Categories</a>
-                           </li>
                            <li <%=menuItem.equals("pg-settings")?"class=\"active\"":"" %>>
                               <a href="/budgetapi?rq=pg-settings"><i class="fa-solid fa-pencil nav-icon"></i> Settings</a>
                            </li>
                            
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="#"><i class="fa-solid fa-tv nav-icon"></i> Transaction View</a>
+                        <ul>
+                           <li <%=menuItem.equals("tx-categories")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=tx-categories"><i class="fa-solid fa-pencil nav-icon"></i> Categories</a>
+                           </li>
+                           <li <%=menuItem.equals("tx-upload")?"class=\"active\"":"" %>>
+                              <a href="/budgetapi?rq=tx-upload"><i class="fa-solid fa-pencil nav-icon"></i> Upload Tx</a>
+                           </li>
                         </ul>
                      </li>
                         

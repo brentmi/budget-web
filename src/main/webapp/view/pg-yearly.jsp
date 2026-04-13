@@ -3,8 +3,6 @@
 <% request.setAttribute("menuItem", "pg-yearly"); %>
 <%@ include file="header.jsp" %>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
 <style>
    .year-tab { cursor: pointer; padding: 8px 20px; border-radius: 4px 4px 0 0; font-size: 13px; font-weight: 600; color: #64748b; border: 1px solid transparent; border-bottom: none; }
    .year-tab.active { background: #fff; border-color: #dee2e6; color: #1e2738; }

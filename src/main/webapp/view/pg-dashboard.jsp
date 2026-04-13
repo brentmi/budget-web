@@ -3,8 +3,6 @@
 <% request.setAttribute("menuItem", "pg-dashboard"); %>
 <%@ include file="header.jsp" %>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
 <style>
    .dash-card { background: #1e2738; border-radius: 6px; padding: 16px 18px; color: #e2e8f0; height: 100%; }
    .dash-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; }

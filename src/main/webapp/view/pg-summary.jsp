@@ -3,8 +3,6 @@
 <% request.setAttribute("menuItem", "pg-summary"); %>
 <%@ include file="header.jsp" %>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
 <style>
    .sum-chart-wrapper { position: relative; height: 280px; }
    .section-title { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }

@@ -3,8 +3,6 @@
 <% request.setAttribute("menuItem", "pg-super"); %>
 <%@ include file="header.jsp" %>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
 <style>
    .super-table th {
       background: #1e2738;

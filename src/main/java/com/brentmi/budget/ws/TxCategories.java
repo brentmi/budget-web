@@ -30,7 +30,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-categories ────────────────────────────────────────────
+   // GET /ws/tx-categories
    // Returns all rows from trx_category: [{ id, name, note }, ...]
    @GET
    @Produces(MediaType.APPLICATION_JSON)
@@ -71,7 +71,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── POST /ws/tx-categories ───────────────────────────────────────────
+   // POST /ws/tx-categories
    // Body: { "name": "...", "note": "..." }
    // Inserts a new trx_category row.
    @POST
@@ -122,7 +122,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── PUT /ws/tx-categories/{id} ───────────────────────────────────────
+   // PUT /ws/tx-categories/{id}
    // Body: { "name": "...", "note": "..." }
    // Updates name and note on a trx_category row.
    @PUT
@@ -173,7 +173,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-categories/{categoryId}/narratives ───────────────────
+   // GET /ws/tx-categories/{categoryId}/narratives
    // Returns all trx_narrative rows for the given category id:
    // [{ id, trx_category_id, category_name, pattern, confidence, match_type }, ...]
    @GET
@@ -225,7 +225,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── POST /ws/tx-categories/narrative ────────────────────────────────
+   // POST /ws/tx-categories/narrative
    // Body: { "trx_category_id": 1, "pattern": "...", "confidence": "high", "match_type": "contains" }
    // Inserts a new trx_narrative row. No retrospective update on add.
    @POST
@@ -281,7 +281,7 @@ public class TxCategories extends AllowDeny
    }
 
 
-   // ── PUT /ws/tx-categories/narrative/{id} ────────────────────────────
+   // PUT /ws/tx-categories/narrative/{id}
    // Body: { "trx_category_id": 1, "pattern": "...", "confidence": "high", "match_type": "contains" }
    // Updates the narrative row. If trx_category_id changed, retroactively
    // reclassifies matching rows in trx_categorised using pattern + match_type.

@@ -71,7 +71,7 @@ var openAccordionId = null; // currently expanded category id
 
 document.addEventListener('DOMContentLoaded', loadCategories);
 
-// ── Load categories ──────────────────────────────────────────────────────
+// Load categories
 function loadCategories()
 {
    fetch('ws/tx-categories', { credentials: 'same-origin' })
@@ -116,7 +116,7 @@ function renderCategoryTable()
       loadNarratives(openAccordionId);
 }
 
-// ── Accordion toggle ─────────────────────────────────────────────────────
+// Accordion toggle
 function toggleAccordion(catId)
 {
    // If the row is in edit mode, don't toggle
@@ -147,7 +147,7 @@ function toggleAccordion(catId)
    loadNarratives(catId);
 }
 
-// ── Edit category inline ─────────────────────────────────────────────────
+// Edit category inline
 function startEditCategory(catId)
 {
    var cat = allCategories.find(function(c) { return c.id === catId; });
@@ -192,7 +192,7 @@ function saveCategory(catId)
    .catch(function(e) { console.error('saveCategory failed', e); });
 }
 
-// ── Add category ─────────────────────────────────────────────────────────
+// Add category
 function showAddCategory()
 {
    document.getElementById('add-cat-form').style.display = 'block';
@@ -232,7 +232,7 @@ function saveNewCategory()
    .catch(function(e) { console.error('saveNewCategory failed', e); });
 }
 
-// ── Narratives ───────────────────────────────────────────────────────────
+// Narratives
 function loadNarratives(catId)
 {
    var panel = document.getElementById('accordion-panel-' + catId);
@@ -406,7 +406,7 @@ function saveNewNarrative(catId)
    .catch(function(e) { console.error('saveNewNarrative failed', e); });
 }
 
-// ── Edit narrative ───────────────────────────────────────────────────────
+// Edit narrative
 var narrativeCache = {};  // catId -> [rows] so we can find original values for cancel
 
 function startEditNarrative(narrativeId, catId)
@@ -467,7 +467,7 @@ function saveNarrative(narrativeId, catId)
    .catch(function(e) { console.error('saveNarrative failed', e); });
 }
 
-// ── Utilities ────────────────────────────────────────────────────────────
+// Utilities
 function escHtml(s)
 {
    return String(s == null ? '' : s)

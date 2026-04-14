@@ -29,7 +29,7 @@
    </a>
 </div>
 
-<!-- ââ Year tabs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Year tabs -->
 <div class="d-flex gap-2 align-items-center mb-4 flex-wrap">
    <span style="font-size:12px;color:#64748b;font-weight:600;">Year:</span>
    <div id="ins-year-tabs" class="d-flex gap-2 flex-wrap">
@@ -37,19 +37,19 @@
    </div>
 </div>
 
-<!-- ââ Section 1: Rolling Average & Trajectory ââââââââââââââââââââââââââ -->
+<!-- Section 1: Rolling Average & Trajectory -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Rolling Average &amp; Trajectory â <span id="ins-rolling-year">...</span></div>
+      <div class="section-title">Rolling Average &amp; Trajectory - <span id="ins-rolling-year">...</span></div>
       <p class="ins-note mb-2">Bars = monthly spend &nbsp;|&nbsp; Line = 3-month rolling average</p>
       <div class="chart-wrap"><canvas id="insRollingChart"></canvas></div>
    </div>
 </div>
 
-<!-- ââ Section 2: Largest Single Transactions âââââââââââââââââââââââââââ -->
+<!-- Section 2: Largest Single Transactions -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Largest Single Transactions â <span id="ins-largest-year">...</span></div>
+      <div class="section-title">Largest Single Transactions - <span id="ins-largest-year">...</span></div>
       <table id="ins-largest-table" class="table table-sm table-hover" style="width:100%;">
          <thead>
             <tr>
@@ -64,7 +64,7 @@
    </div>
 </div>
 
-<!-- ââ Section 3: Day-of-Week + Category Ratios âââââââââââââââââââââââââ -->
+<!-- Section 3: Day-of-Week + Category Ratios -->
 <div class="row g-3 mb-4">
    <div class="col-lg-6">
       <div class="card shadow-sm h-100">
@@ -86,10 +86,10 @@
    </div>
 </div>
 
-<!-- ââ Section 4: Annual Cost Projection ââââââââââââââââââââââââââââââââ -->
+<!-- Section 4: Annual Cost Projection -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Annual Cost Projection â <span id="ins-proj-year">...</span></div>
+      <div class="section-title">Annual Cost Projection - <span id="ins-proj-year">...</span></div>
       <p class="ins-note mb-3">Based on average monthly spend for the selected year extrapolated to 12 months. "Months" shows how many months had activity.</p>
       <div class="table-responsive">
          <table class="table table-sm table-hover" style="width:100%;">
@@ -108,19 +108,19 @@
    </div>
 </div>
 
-<!-- ââ Section 5: Spending Anomalies ââââââââââââââââââââââââââââââââââââ -->
+<!-- Section 5: Spending Anomalies -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Spending Anomalies â <span id="ins-anomaly-year">...</span></div>
+      <div class="section-title">Spending Anomalies - <span id="ins-anomaly-year">...</span></div>
       <p class="ins-note mb-3">Months where a category spiked &gt;25% above its 6-month trailing average. Requires at least 2 prior months of data per category.</p>
       <div id="ins-anomaly-content"><div style="font-size:12px;color:#94a3b8;">Loading...</div></div>
    </div>
 </div>
 
-<!-- ââ Section 6: Spending Velocity âââââââââââââââââââââââââââââââââââââ -->
+<!-- Section 6: Spending Velocity -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Spending Velocity â <span id="ins-velocity-year">...</span></div>
+      <div class="section-title">Spending Velocity - <span id="ins-velocity-year">...</span></div>
       <p class="ins-note mb-3">Average number of days between consecutive transactions per category. How frequently are you spending in each area?</p>
       <table id="ins-velocity-table" class="table table-sm table-hover" style="width:100%;">
          <thead>
@@ -137,11 +137,11 @@
    </div>
 </div>
 
-<!-- ââ Section 7: Subscription Audit âââââââââââââââââââââââââââââââââââ -->
+<!-- Section 7: Subscription Audit -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
       <div class="section-title">Subscription Audit</div>
-      <p class="ins-note mb-3">Recurring charges detected over the last 24 months â same narrative, stable amount (CV &lt; 30%), roughly monthly cadence (20â50 day interval). <em>Year selector does not affect this section.</em></p>
+      <p class="ins-note mb-3">Recurring charges detected over the last 24 months - same narrative, stable amount (CV &lt; 30%), roughly monthly cadence (20-50 day interval). <em>Year selector does not affect this section.</em></p>
       <div id="ins-subs-summary" class="mb-3"></div>
       <table id="ins-subs-table" class="table table-sm table-hover" style="width:100%;">
          <thead>
@@ -160,10 +160,10 @@
    </div>
 </div>
 
-<!-- ââ Section 8: Top Merchants âââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Section 8: Top Merchants -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
-      <div class="section-title">Top Merchants â <span id="ins-merchants-year">...</span></div>
+      <div class="section-title">Top Merchants - <span id="ins-merchants-year">...</span></div>
       <p class="ins-note mb-3">Top 30 narratives by total spend. Use the category filter to focus or exclude fixed costs.</p>
       <div class="d-flex align-items-center gap-2 mb-3">
          <label style="font-size:12px;color:#64748b;font-weight:600;margin:0;">Category:</label>
@@ -186,7 +186,7 @@
    </div>
 </div>
 
-<!-- ââ Section 9: What If Sensitivity ââââââââââââââââââââââââââââââââââ -->
+<!-- Section 9: What If Sensitivity -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
       <div class="section-title">What If Sensitivity</div>
@@ -196,7 +196,7 @@
             <label style="font-size:12px;color:#64748b;font-weight:600;">Category</label>
             <div style="margin-top:4px;">
                <select id="wi-category" class="form-select form-select-sm" style="font-size:12px;width:210px;" onchange="onWhatIfCategoryChange()">
-                  <option value="">â select a category â</option>
+                  <option value="">- select a category -</option>
                </select>
             </div>
          </div>
@@ -221,7 +221,7 @@
    </div>
 </div>
 
-<!-- ââ Section 10: Subscription Creep Timeline âââââââââââââââââââââââââ -->
+<!-- Section 10: Subscription Creep Timeline -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
       <div class="section-title">Subscription Creep Timeline</div>
@@ -317,8 +317,7 @@ function selectYear(year)
    .catch(function(e) { console.error('tx-insights selectYear failed', e); });
 }
 
-// ââ Rolling Average âââââââââââââââââââââââââââââââââââââââââââââââââââ
-
+// Rolling Average
 function renderRollingSection(rawData, yr)
 {
    if (insRollingChart) { insRollingChart.destroy(); insRollingChart = null; }
@@ -401,8 +400,7 @@ function renderRollingSection(rawData, yr)
    });
 }
 
-// ââ Largest Transactions ââââââââââââââââââââââââââââââââââââââââââââââ
-
+// Largest Transactions
 function renderLargestTable(rows)
 {
    if ($.fn.DataTable.isDataTable('#ins-largest-table'))
@@ -423,21 +421,20 @@ function renderLargestTable(rows)
    document.getElementById('ins-largest-tbody').innerHTML = html;
 
    $('#ins-largest-table').DataTable({
-      pageLength: 20,
+      pageLength: 10,
       order:      [[2, 'desc']],
       language:   { search: '', searchPlaceholder: 'Filter...' },
       columnDefs: [{ targets: [2], type: 'num' }]
    });
 }
 
-// ââ Day of Week âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-
+// Day of Week
 function renderDowChart(data)
 {
    if (insDowChart) { insDowChart.destroy(); insDowChart = null; }
    if (!data.length) return;
 
-   // MySQL DAYOFWEEK: 1=Sun, 2=Mon ... 7=Sat â sort to ensure correct order
+   // MySQL DAYOFWEEK: 1=Sun, 2=Mon ... 7=Sat - sort to ensure correct order
    data.sort(function(a, b) { return a.dow - b.dow; });
 
    var labels = data.map(function(d) { return d.dowName.substring(0, 3); });
@@ -489,8 +486,7 @@ function renderDowChart(data)
    });
 }
 
-// ââ Category Ratios âââââââââââââââââââââââââââââââââââââââââââââââââââ
-
+// Category Ratios
 function renderCatRatioChart(projData)
 {
    if (insCatRatioChart) { insCatRatioChart.destroy(); insCatRatioChart = null; }
@@ -648,7 +644,7 @@ function renderVelocityTable(data)
             +    d.avgDays.toFixed(1) + ' days'
             + '</td>'
             + '<td class="text-center" style="color:#94a3b8;font-size:11px;">'
-            +    d.minGap + 'â' + d.maxGap + ' days'
+            +    d.minGap + '-' + d.maxGap + ' days'
             + '</td>'
             + '<td class="text-center">'
             +    '<span class="freq-label" style="background:' + bg + ';color:' + fg + ';">' + label + '</span>'
@@ -658,15 +654,14 @@ function renderVelocityTable(data)
    document.getElementById('ins-velocity-tbody').innerHTML = html;
 
    $('#ins-velocity-table').DataTable({
-      pageLength:  25,
+      pageLength: 10,
       order:       [[2, 'asc']],
       language:    { search: '', searchPlaceholder: 'Filter...' },
       columnDefs:  [{ targets: [2], type: 'num' }]
    });
 }
 
-// ââ Subscription Audit ââââââââââââââââââââââââââââââââââââââââââââââââ
-
+// Subscription Audit
 function loadSubscriptions()
 {
    fetch('ws/tx-insights/subscriptions', { credentials: 'same-origin' })
@@ -693,7 +688,7 @@ function renderSubscriptionTable(data)
    document.getElementById('ins-subs-summary').innerHTML =
       '<div style="font-size:12px;color:#64748b;">'
     + '<strong style="color:#1e2738;">' + data.length + '</strong> likely subscription'
-    + (data.length !== 1 ? 's' : '') + ' identified â estimated total '
+    + (data.length !== 1 ? 's' : '') + ' identified - estimated total '
     + '<strong style="color:#ef4444;">' + fmt(totalAnnual) + ' / year</strong></div>';
 
    var html = '';
@@ -722,7 +717,7 @@ function renderSubscriptionTable(data)
     + '</tr>';
 
    $('#ins-subs-table').DataTable({
-      pageLength: 25,
+      pageLength: 10,
       order:      [[5, 'desc']],
       language:   { search: '', searchPlaceholder: 'Filter...' },
       columnDefs: [{ targets: [4, 5], type: 'num' }]
@@ -765,7 +760,7 @@ function renderMerchantsTable(data)
    document.getElementById('ins-merchants-tbody').innerHTML = html;
 
    $('#ins-merchants-table').DataTable({
-      pageLength: 30,
+      pageLength: 10,
       order:      [[3, 'desc']],
       language:   { search: '', searchPlaceholder: 'Filter...' },
       columnDefs: [{ targets: [3, 4], type: 'num' }]
@@ -858,7 +853,7 @@ function renderWhatIf()
    document.getElementById('wi-saving').textContent     = fmt(annualSaving);
    document.getElementById('wi-saving-2yr').textContent = fmt(annualSaving * 2);
    document.getElementById('wi-avg-label').textContent  =
-      'Current average: ' + fmt(avgMonthly) + '/month  â  reduced to ' + fmt(reduced) + '/month';
+      'Current average: ' + fmt(avgMonthly) + '/month  -  reduced to ' + fmt(reduced) + '/month';
 
    // Build 12 forward month labels from next calendar month
    var today  = new Date();

@@ -229,8 +229,8 @@
                <input type="text" class="form-control form-control-sm" id="ws-notes" placeholder="">
             </div>
             <div class="mb-3">
-               <div class="form-check">
-                  <input type="checkbox" class="form-check-input" id="ws-is-active">
+               <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="ws-is-active" style="cursor:pointer;width:2.5em;height:1.25em;">
                   <label class="form-check-label" style="font-size:13px;" for="ws-is-active">Is Active</label>
                </div>
             </div>
@@ -393,7 +393,7 @@ function renderCcEstimates()
    // Computed Misc Spending — read-only, derived from per-day target x days remaining
    total += computedMiscSpend;
    html += '<tr style="background:#f8fafc;">' +
-      '<td style="font-weight:600;">Computed Misc Spending</td>' +
+      '<td style="font-weight:600;">Computed Estimate Spend</td>' +
       '<td id="cc-computed-misc">' + fmt(computedMiscSpend) + '</td>' +
       '<td></td>' +
    '</tr>';
@@ -407,10 +407,13 @@ function renderCcEstimates()
             (item.notes ? '<br><span style="font-size:11px;color:#94a3b8;">' + escHtml(item.notes) + '</span>' : '') +
          '</td>' +
          '<td id="cc-amt-' + item.id + '" style="' + amtColor + '">' + fmt(item.amount) + '</td>' +
-         '<td><div style="display:flex;gap:4px;align-items:center;">' +
-            '<input type="checkbox" ' + (item.is_active ? 'checked' : '') + ' ' +
-               'onchange="toggleCcItem(' + item.id + ', this)" ' +
-               'style="margin-right:2px;" title="Include in total">' +
+         '<td><div style="display:flex;gap:6px;align-items:center;">' +
+            '<div class="form-check form-switch mb-0" title="Include in total">' +
+               '<input class="form-check-input" type="checkbox" role="switch" ' +
+                  (item.is_active ? 'checked' : '') + ' ' +
+                  'onchange="toggleCcItem(' + item.id + ', this)" ' +
+                  'style="cursor:pointer;width:2.5em;height:1.25em;">' +
+            '</div>' +
             '<button class="btn btn-xs btn-outline-secondary" style="padding:2px 7px;font-size:11px;" onclick="openEditWsModal(' + item.id + ')">' +
                '<i class="fa-solid fa-pencil"></i>' +
             '</button>' +

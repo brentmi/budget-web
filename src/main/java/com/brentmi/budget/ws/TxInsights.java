@@ -34,7 +34,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/rolling/{year} ───────────────────────────────
+   // GET /ws/tx-insights/rolling/{year}
    // Returns monthly debit totals for the selected year plus November and
    // December of the prior year so the caller can compute a 3-month
    // rolling average back to January of the selected year.
@@ -92,7 +92,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/largest?year=&limit= ────────────────────────
+   // GET /ws/tx-insights/largest?year=&limit=
    // Returns the top N debit transactions for the year, sorted by amount.
    // limit defaults to 20, max 50.
    @GET
@@ -154,7 +154,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/dow/{year} ──────────────────────────────────
+   // GET /ws/tx-insights/dow/{year}
    // Returns total and average debit spend grouped by day of week.
    // MySQL DAYOFWEEK: 1=Sunday … 7=Saturday.
    // days_count = number of distinct calendar dates with that weekday,
@@ -212,7 +212,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/projection/{year} ───────────────────────────
+   // GET /ws/tx-insights/projection/{year}
    // Per-category: total debit, months with data, average monthly spend,
    // and projected annual (avg * 12). Sorted by projected_annual DESC.
    // months_active lets the caller flag partial-year estimates.
@@ -269,7 +269,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/anomalies/{year} ─────────────────────────────
+   // GET /ws/tx-insights/anomalies/{year}
    // Detects months where a category's spend was >25% above its 6-month
    // trailing average. Fetches 6 context months before the selected year
    // so January can have a meaningful baseline. Requires at least 2 prior
@@ -391,7 +391,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/velocity/{year} ──────────────────────────────
+   // GET /ws/tx-insights/velocity/{year}
    // Average number of days between consecutive transactions per category
    // using MySQL LAG(). days_gap IS NULL for the first transaction in each
    // partition, so those rows are filtered out in the outer query.
@@ -456,7 +456,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/subscriptions ───────────────────────────────
+   // GET /ws/tx-insights/subscriptions
    // Identifies likely recurring charges over the last 24 months.
    // Criteria applied in Java after the query:
    //   - implied interval = total_span_days / (count - 1): must be 20–50 days
@@ -484,6 +484,7 @@ public class TxInsights extends AllowDeny
             "       DATEDIFF(MAX(when_date), MIN(when_date))  AS total_span_days " +
             "FROM trx_categorised " +
             "WHERE debit_amount > 0 " +
+            "  AND category = 'Subscriptions' " +
             "  AND when_date >= DATE_SUB(NOW(), INTERVAL 24 MONTH) " +
             "GROUP BY narrative, category " +
             "HAVING COUNT(*) >= 3 " +
@@ -533,7 +534,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/merchants/{year} ─────────────────────────────
+   // GET /ws/tx-insights/merchants/{year}
    // Top 30 narrative+category pairs by total debit for the year.
    // The caller populates a category filter to let users exclude fixed costs.
    @GET
@@ -589,7 +590,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── GET /ws/tx-insights/sub-creep ────────────────────────────────────
+   // GET /ws/tx-insights/sub-creep
    // For each subscription identified by the same criteria as getSubscriptions(),
    // returns monthly amounts across ALL available history for timeline charting.
    // Raw narratives are resolved to their matching trx_narrative pattern so that
@@ -633,6 +634,7 @@ public class TxInsights extends AllowDeny
             "        SELECT narrative, category, AVG(debit_amount) AS avg_amt " +
             "        FROM trx_categorised " +
             "        WHERE debit_amount > 0 " +
+            "          AND category = 'Subscriptions' " +
             "          AND when_date >= DATE_SUB(NOW(), INTERVAL 24 MONTH) " +
             "        GROUP BY narrative, category " +
             "        HAVING COUNT(*) >= 3 " +
@@ -708,8 +710,7 @@ public class TxInsights extends AllowDeny
    }
 
 
-   // ── Helpers ──────────────────────────────────────────────────────────
-
+   // Helpers
    // Returns the first trx_narrative pattern whose match_type condition is
    // satisfied by the given narrative (case-insensitive). Falls back to the
    // raw narrative if no rule matches. Mirrors the logic in TxCategoriser.

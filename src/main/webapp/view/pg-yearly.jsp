@@ -79,30 +79,29 @@
 
                <div class="col-sm-3">
                   <div class="stat-panel">
-                     <div class="sp-label">Fixed Required</div>
-                     <div class="sp-value" id="sp-fixed">—</div>
-                     <div class="sp-sub">from Fixed Inputs</div>
+                     <div class="sp-label">Budget</div>
+                     <div class="sp-value" id="sp-budget">—</div>
                   </div>
                </div>
                <div class="col-sm-3">
                   <div class="stat-panel">
-                     <div class="sp-label">Total Spent</div>
+                     <div class="sp-label">Total Outgoings</div>
                      <div class="sp-value" id="sp-spent">—</div>
-                     <div class="sp-sub">all debits</div>
                   </div>
                </div>
                <div class="col-sm-3">
                   <div class="stat-panel">
-                     <div class="sp-label">Discretionary</div>
+                     <div class="sp-label" id="sp-over-under-label">Over Budget</div>
+                     <div class="sp-value" id="sp-over-under">—</div>
+                  </div>
+               </div>
+               <div class="col-sm-3">
+                  <div class="stat-panel">
+                     <div class="sp-label">Fixed Allocated</div>
+                     <div class="sp-value" id="sp-fixed">—</div>
+                     <div style="border-top:1px solid #334155;margin:8px 0;"></div>
+                     <div class="sp-label">Other Spending</div>
                      <div class="sp-value" id="sp-disc">—</div>
-                     <div class="sp-sub">spent − fixed</div>
-                  </div>
-               </div>
-               <div class="col-sm-3">
-                  <div class="stat-panel">
-                     <div class="sp-label">Daily Disc.</div>
-                     <div class="sp-value" id="sp-daily">—</div>
-                     <div class="sp-sub">discretionary / 365</div>
                   </div>
                </div>
             </div>
@@ -159,6 +158,10 @@
             <div class="mb-3">
                <label class="form-label" style="font-size:13px;">Target Gain ($)</label>
                <input type="number" class="form-control form-control-sm" id="new-year-target" value="20000" step="0.01">
+            </div>
+            <div class="mb-3">
+               <label class="form-label" style="font-size:13px;">Net Spend Budget ($)</label>
+               <input type="number" class="form-control form-control-sm" id="new-year-net-spend" value="50000" step="0.01">
             </div>
             <div id="add-year-error" class="text-danger" style="font-size:12px;display:none;"></div>
          </div>
@@ -355,13 +358,20 @@ function renderYear(yearId)
    tgtEl.textContent = (onTgt >= 0 ? '+' : '') + fmt(onTgt);
    tgtEl.className = 'sp-value ' + (onTgt >= 0 ? 'on-target-pos' : 'on-target-neg');
 
-   document.getElementById('sp-fixed').textContent = fmt(fixedYearly);
-   document.getElementById('sp-spent').textContent = fmt(totalDebit);
+   var netSpendBudget = year.net_spend_budget != null ? year.net_spend_budget : 0;
+   document.getElementById('sp-budget').textContent = year.net_spend_budget != null ? fmt(netSpendBudget) : '—';
+   document.getElementById('sp-spent').textContent  = fmt(totalDebit);
+   document.getElementById('sp-fixed').textContent  = fmt(fixedYearly);
 
    var discEl = document.getElementById('sp-disc');
    discEl.textContent = fmt(Math.max(0, disc));
 
-   document.getElementById('sp-daily').textContent = fmt(Math.max(0, disc) / 365);
+   var budgetDiff      = totalDebit - netSpendBudget;
+   var overUnderEl     = document.getElementById('sp-over-under');
+   var overUnderLabel  = document.getElementById('sp-over-under-label');
+   overUnderEl.textContent   = year.net_spend_budget != null ? fmt(Math.abs(budgetDiff)) : '—';
+   overUnderLabel.textContent = budgetDiff > 0 ? 'Over Budget' : 'Under Budget';
+   overUnderEl.className     = 'sp-value ' + (budgetDiff > 0 ? 'gain-neg' : 'gain-pos');
 
    // Months table
    var html = '';
@@ -458,6 +468,7 @@ function showAddYear()
    document.getElementById('add-year-desc').textContent = 'Creates ' + nextLabel + ' (' + nextSDate + ' to ' + nextEDate + ') with 12 blank months.';
    document.getElementById('new-year-opening').value    = '';
    document.getElementById('new-year-target').value     = 20000;
+   document.getElementById('new-year-net-spend').value  = 50000;
    document.getElementById('add-year-error').style.display = 'none';
 
    document.getElementById('addYearModal').dataset.nextLabel = nextLabel;
@@ -484,10 +495,11 @@ function showAddYear()
 
 function confirmAddYear()
 {
-   var modal   = document.getElementById('addYearModal');
-   var opening = parseFloat(document.getElementById('new-year-opening').value);
-   var target  = parseFloat(document.getElementById('new-year-target').value);
-   var errEl   = document.getElementById('add-year-error');
+   var modal    = document.getElementById('addYearModal');
+   var opening  = parseFloat(document.getElementById('new-year-opening').value);
+   var target   = parseFloat(document.getElementById('new-year-target').value);
+   var netSpend = parseFloat(document.getElementById('new-year-net-spend').value);
+   var errEl    = document.getElementById('add-year-error');
 
    if (isNaN(opening))
    {
@@ -501,8 +513,9 @@ function confirmAddYear()
       year_label:      modal.dataset.nextLabel,
       start_date:      modal.dataset.nextSDate,
       end_date:        modal.dataset.nextEDate,
-      opening_balance: opening,
-      target_gain:     isNaN(target) ? 20000 : target
+      opening_balance:  opening,
+      target_gain:      isNaN(target) ? 20000 : target,
+      net_spend_budget: isNaN(netSpend) ? null : netSpend
    };
 
    fetch('ws/years', {

@@ -37,6 +37,52 @@
    </div>
 </div>
 
+<!-- Section 0: What If Annual Target -->
+<div class="card shadow-sm mb-4">
+   <div class="card-body">
+      <div class="section-title">What If Annual Target</div>
+      <p class="ins-note mb-3">12-month forward projection based on average monthly spend for the selected year. Adjust a category to see impact on annual total vs your yearly target.</p>
+
+      <div class="row g-3 align-items-end mb-3">
+         <div class="col-auto">
+            <label style="font-size:12px;color:#64748b;font-weight:600;">Yearly Target ($)</label>
+            <div style="margin-top:4px;">
+               <input type="number" id="wat-yearly-target" min="0" step="1000" value="50000"
+                      class="form-control form-control-sm" style="font-size:12px;width:120px;"
+                      oninput="renderWatSection()">
+            </div>
+         </div>
+         <div class="col-auto">
+            <label style="font-size:12px;color:#64748b;font-weight:600;">Category</label>
+            <div style="margin-top:4px;">
+               <select id="wat-category" class="form-select form-select-sm" style="font-size:12px;width:210px;" onchange="onWatCategoryChange()">
+                  <option value="">- select a category -</option>
+               </select>
+            </div>
+         </div>
+         <div class="col-auto">
+            <label style="font-size:12px;color:#64748b;font-weight:600;">Reduce by ($/month)</label>
+            <div class="d-flex align-items-center gap-2 mt-1">
+               <input type="range"  id="wat-slider"    min="0" max="500" step="10" value="0" style="width:150px;" oninput="syncWatSlider(this)">
+               <input type="number" id="wat-reduction" min="0" step="10" value="0"
+                      class="form-control form-control-sm" style="font-size:12px;width:78px;" oninput="syncWatInput(this)">
+            </div>
+         </div>
+      </div>
+
+      <div class="d-flex gap-4 mb-3 flex-wrap" style="font-size:12px;">
+         <div><span style="color:#64748b;">Fixed required:</span> <strong id="wat-fixed" style="color:#1e2738;">--</strong></div>
+         <div><span style="color:#64748b;">Total spend (yr):</span> <strong id="wat-total" style="color:#1e2738;">--</strong></div>
+         <div><span style="color:#64748b;">Discretionary (yr):</span> <strong id="wat-disc-yr" style="color:#1e2738;">--</strong></div>
+         <div><span style="color:#64748b;">Disc. per month:</span> <strong id="wat-disc-mo" style="color:#1e2738;">--</strong></div>
+         <div><span style="color:#64748b;">Disc. per day:</span> <strong id="wat-disc-day" style="color:#1e2738;">--</strong></div>
+      </div>
+
+      <p id="wat-avg-label" class="ins-note mb-2"></p>
+      <div class="chart-wrap"><canvas id="insWatChart"></canvas></div>
+   </div>
+</div>
+
 <!-- Section 1: Rolling Average & Trajectory -->
 <div class="card shadow-sm mb-4">
    <div class="card-body">
@@ -245,27 +291,45 @@ var insDowChart      = null;
 var insCatRatioChart = null;
 var insWhatIfChart   = null;
 var insSubCreepChart = null;
+var insWatChart      = null;
 var selectedYear     = null;
 var projData         = [];
+var watFixedYearly   = 0;
+var watYears         = [];
+var watMonthData     = {};
 
 document.addEventListener('DOMContentLoaded', function()
 {
-   fetch('ws/tx-data/years', { credentials: 'same-origin' })
-      .then(function(r) { return r.json(); })
-      .then(function(years)
-      {
-         if (!years.length)
+   Promise.all([
+      fetch('ws/tx-data/years', { credentials: 'same-origin' }).then(function(r) { return r.json(); }),
+      fetch('ws/fixed-input',   { credentials: 'same-origin' }).then(function(r) { return r.json(); })
+   ])
+   .then(function(results)
+   {
+      var years      = results[0];
+      var fixedItems = results[1];
+
+      watFixedYearly = fixedItems
+         .filter(function(i) { return i.is_active; })
+         .reduce(function(sum, i)
          {
-            document.getElementById('ins-year-tabs').innerHTML =
-               '<span style="font-size:12px;color:#94a3b8;">No transaction data found.</span>';
-            return;
-         }
-         renderYearTabs(years);
-         selectYear(years[0]);
-         loadSubscriptions();
-         loadSubCreep();
-      })
-      .catch(function(e) { console.error('tx-insights init failed', e); });
+            var mult = i.frequency === 'Monthly' ? 12 : i.frequency === 'Quarterly' ? 4 : i.frequency === 'Weekly' ? 52 : 1;
+            return sum + i.item_cost * mult;
+         }, 0);
+
+      if (!years.length)
+      {
+         document.getElementById('ins-year-tabs').innerHTML =
+            '<span style="font-size:12px;color:#94a3b8;">No transaction data found.</span>';
+         return;
+      }
+      renderYearTabs(years);
+      selectYear(years[0]);
+      loadSubscriptions();
+      loadSubCreep();
+      loadWatBudgetData();
+   })
+   .catch(function(e) { console.error('tx-insights init failed', e); });
 });
 
 function renderYearTabs(years)
@@ -310,6 +374,7 @@ function selectYear(year)
       renderCatRatioChart(projData);
       renderProjectionTable(projData);
       populateWhatIfDropdown(projData);
+      populateWatDropdown(projData);
       renderAnomalyTable(results[4], year);
       renderVelocityTable(results[5]);
       renderMerchantsTable(results[6]);
@@ -998,6 +1063,254 @@ function renderSubCreepChart(data)
             y: {
                ticks: { font: { size: 11 }, callback: function(v) { return '$' + v.toFixed(0); } },
                grid:  { color: 'rgba(0,0,0,0.05)' }
+            }
+         }
+      }
+   });
+}
+
+
+function populateWatDropdown(data)
+{
+   var sel = document.getElementById('wat-category');
+   while (sel.options.length > 1) sel.remove(1);
+   data.forEach(function(d)
+   {
+      var opt         = document.createElement('option');
+      opt.value       = d.category;
+      opt.textContent = d.category + '  (avg ' + fmt(d.avgMonthly) + '/mo)';
+      sel.appendChild(opt);
+   });
+   document.getElementById('wat-slider').value    = 0;
+   document.getElementById('wat-reduction').value = 0;
+   document.getElementById('wat-avg-label').textContent = '';
+   renderWatSection();
+}
+
+function onWatCategoryChange()
+{
+   var cat = document.getElementById('wat-category').value;
+   if (cat)
+   {
+      for (var i = 0; i < projData.length; i++)
+      {
+         if (projData[i].category === cat)
+         {
+            var maxSlider = Math.ceil(projData[i].avgMonthly / 10) * 10;
+            document.getElementById('wat-slider').max   = maxSlider;
+            document.getElementById('wat-slider').value = 0;
+            document.getElementById('wat-reduction').value = 0;
+            break;
+         }
+      }
+   }
+   renderWatSection();
+}
+
+function syncWatSlider(slider)
+{
+   document.getElementById('wat-reduction').value = slider.value;
+   renderWatSection();
+}
+
+function syncWatInput(input)
+{
+   document.getElementById('wat-slider').value = input.value;
+   renderWatSection();
+}
+
+function loadWatBudgetData()
+{
+   fetch('ws/years', { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(years)
+      {
+         watYears    = years;
+         var fetches = years.map(function(y)
+         {
+            return fetch('ws/months?year_id=' + y.id, { credentials: 'same-origin' })
+               .then(function(r) { return r.json(); })
+               .then(function(months)
+               {
+                  var mFetches = months.map(function(m)
+                  {
+                     return fetch('ws/entries?month_id=' + m.id, { credentials: 'same-origin' })
+                        .then(function(r) { return r.json(); })
+                        .then(function(ents) { return { month: m, entries: ents }; });
+                  });
+                  return Promise.all(mFetches);
+               })
+               .then(function(data) { watMonthData[y.id] = data; });
+         });
+         return Promise.all(fetches);
+      })
+      .then(function() { renderWatSection(); })
+      .catch(function(e) { console.error('wat budget data load failed', e); });
+}
+
+function renderWatSection()
+{
+   if (!projData.length) return;
+
+   var yearlyTarget  = parseFloat(document.getElementById('wat-yearly-target').value) || 50000;
+   var cat           = document.getElementById('wat-category').value;
+   var reduction     = parseFloat(document.getElementById('wat-reduction').value) || 0;
+   var fixedMonthly  = watFixedYearly / 12;
+   var fixedRounded  = Math.round(fixedMonthly);
+   var targetRounded = Math.round(yearlyTarget / 12);
+
+   // Avg monthly from transaction projections — used as fallback for months with no budget entries
+   var baseMonthly = projData.reduce(function(s, d) { return s + d.avgMonthly; }, 0);
+   var fallback    = baseMonthly;
+   if (cat && reduction > 0)
+   {
+      for (var i = 0; i < projData.length; i++)
+      {
+         if (projData[i].category === cat)
+         {
+            fallback = baseMonthly - Math.min(reduction, projData[i].avgMonthly);
+            break;
+         }
+      }
+   }
+
+   var avgLabelEl = document.getElementById('wat-avg-label');
+   if (cat && reduction > 0)
+      avgLabelEl.textContent = 'Avg monthly (fallback): ' + fmt(baseMonthly) + ' reduced to ' + fmt(fallback);
+   else
+      avgLabelEl.textContent = '';
+
+   // Build calendar-month -> totalDebit from budget entries (same data as DISCRETIONARY SPEND chart)
+   var calMonthTotals = {};
+   watYears.forEach(function(year)
+   {
+      var monthData = watMonthData[year.id] || [];
+      var yr        = parseInt(year.start_date.substring(0, 4));
+      monthData.forEach(function(md)
+      {
+         var debits = md.entries
+            .filter(function(e) { return e.entry_type === 'DEBIT'; })
+            .reduce(function(s, e) { return s + e.amount; }, 0);
+         var calMo = md.month.month_number <= 6 ? md.month.month_number + 6 : md.month.month_number - 6;
+         var calYr = md.month.month_number <= 6 ? yr : yr + 1;
+         calMonthTotals[calYr + '-' + (calMo < 10 ? '0' : '') + calMo] = debits;
+      });
+   });
+
+   // Forward 12-month window starting from current month
+   var today        = new Date();
+   var labels       = [];
+   var baseValues   = [];
+   var overValues   = [];
+   var targetLine   = [];
+   var fixedLine    = [];
+   var totalSpendYr = 0;
+
+   for (var j = 0; j < 12; j++)
+   {
+      var d     = new Date(today.getFullYear(), today.getMonth() + j, 1);
+      var calYr = d.getFullYear();
+      var calMo = d.getMonth() + 1;
+      var key   = calYr + '-' + (calMo < 10 ? '0' : '') + calMo;
+      labels.push(MONTH_LABELS[d.getMonth()] + ' ' + calYr);
+
+      var raw        = calMonthTotals[key] !== undefined ? calMonthTotals[key] : fallback;
+      var monthTotal = Math.max(0, raw - reduction);
+      totalSpendYr  += monthTotal;
+
+      var rounded = Math.round(monthTotal);
+      baseValues.push(Math.min(rounded, fixedRounded));
+      overValues.push(Math.max(0, rounded - fixedRounded));
+      targetLine.push(targetRounded);
+      fixedLine.push(fixedRounded);
+   }
+
+   var discYr = Math.max(0, totalSpendYr - watFixedYearly);
+
+   document.getElementById('wat-fixed').textContent    = fmt(watFixedYearly);
+   document.getElementById('wat-total').textContent    = fmt(totalSpendYr);
+   document.getElementById('wat-disc-yr').textContent  = fmt(discYr);
+   document.getElementById('wat-disc-mo').textContent  = fmt(discYr / 12);
+   document.getElementById('wat-disc-day').textContent = fmt(discYr / 365);
+
+   renderWatChart(labels, baseValues, overValues, targetLine, fixedLine);
+}
+
+function renderWatChart(labels, baseValues, overValues, targetLine, fixedLine)
+{
+   if (insWatChart) { insWatChart.destroy(); insWatChart = null; }
+
+   var yearlyTarget = parseFloat(document.getElementById('wat-yearly-target').value) || 50000;
+   var fixedLabel   = '$' + Math.round(watFixedYearly / 12).toLocaleString('en-AU');
+   var targetLabel  = '$' + Math.round(yearlyTarget / 12).toLocaleString('en-AU');
+
+   var ctx = document.getElementById('insWatChart').getContext('2d');
+   insWatChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+         labels: labels,
+         datasets: [
+            {
+               label:           'Base Spend',
+               data:            baseValues,
+               backgroundColor: 'rgba(34,197,94,0.7)',
+               stack:           'spend',
+               borderRadius:    0,
+               order:           3
+            },
+            {
+               label:           'Discretionary',
+               data:            overValues,
+               backgroundColor: 'rgba(239,68,68,0.7)',
+               stack:           'spend',
+               borderRadius:    3,
+               order:           3
+            },
+            {
+               type:        'line',
+               label:       'Fixed: ' + fixedLabel + '/mo',
+               data:        fixedLine,
+               borderColor: 'rgba(100,116,139,0.7)',
+               borderWidth: 1.5,
+               borderDash:  [4, 3],
+               pointRadius: 0,
+               fill:        false,
+               order:       2
+            },
+            {
+               type:        'line',
+               label:       'Target: ' + targetLabel + '/mo',
+               data:        targetLine,
+               borderColor: 'rgba(59,130,246,0.9)',
+               borderWidth: 2,
+               borderDash:  [6, 4],
+               pointRadius: 0,
+               fill:        false,
+               order:       1
+            }
+         ]
+      },
+      options: {
+         responsive: true,
+         maintainAspectRatio: false,
+         plugins: {
+            legend: { display: true, labels: { font: { size: 11 }, boxWidth: 12 } },
+            tooltip: {
+               callbacks: {
+                  label: function(c)
+                  {
+                     if (c.parsed.y === 0) return null;
+                     return c.dataset.label + ': ' + fmt(c.parsed.y);
+                  }
+               }
+            }
+         },
+         scales: {
+            x: { stacked: true, ticks: { font: { size: 11 }, maxRotation: 45 }, grid: { display: false } },
+            y: {
+               stacked: true,
+               ticks: { font: { size: 11 }, callback: function(v) { return '$' + (v / 1000).toFixed(1) + 'k'; } },
+               grid: { color: 'rgba(0,0,0,0.05)' }
             }
          }
       }

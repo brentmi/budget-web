@@ -40,7 +40,7 @@ public class FinancialYears extends AllowDeny
       try
       {
          c = Datasource.getConnection(request);
-         String sql = "SELECT id, year_label, start_date, end_date, opening_balance, target_gain " +
+         String sql = "SELECT id, year_label, start_date, end_date, opening_balance, target_gain, net_spend_budget " +
                       "FROM financial_year ORDER BY start_date ASC";
          PreparedStatement st = c.prepareStatement(sql);
          ResultSet rs = st.executeQuery();
@@ -48,12 +48,13 @@ public class FinancialYears extends AllowDeny
          while (rs.next())
          {
             JSONObject row = new JSONObject();
-            row.put("id",              rs.getInt(1));
-            row.put("year_label",      rs.getString(2));
-            row.put("start_date",      rs.getString(3));
-            row.put("end_date",        rs.getString(4));
-            row.put("opening_balance", rs.getDouble(5));
-            row.put("target_gain",     rs.getDouble(6));
+            row.put("id",               rs.getInt(1));
+            row.put("year_label",       rs.getString(2));
+            row.put("start_date",       rs.getString(3));
+            row.put("end_date",         rs.getString(4));
+            row.put("opening_balance",  rs.getDouble(5));
+            row.put("target_gain",      rs.getDouble(6));
+            row.put("net_spend_budget", rs.getObject(7));
             arr.put(row);
          }
          return arr.toString();
@@ -84,7 +85,7 @@ public class FinancialYears extends AllowDeny
       try
       {
          c = Datasource.getConnection(request);
-         String sql = "SELECT id, year_label, start_date, end_date, opening_balance, target_gain " +
+         String sql = "SELECT id, year_label, start_date, end_date, opening_balance, target_gain, net_spend_budget " +
                       "FROM financial_year WHERE id = ?";
          PreparedStatement st = c.prepareStatement(sql);
          st.setInt(1, id);
@@ -92,12 +93,13 @@ public class FinancialYears extends AllowDeny
          if (rs.next())
          {
             JSONObject row = new JSONObject();
-            row.put("id",              rs.getInt(1));
-            row.put("year_label",      rs.getString(2));
-            row.put("start_date",      rs.getString(3));
-            row.put("end_date",        rs.getString(4));
-            row.put("opening_balance", rs.getDouble(5));
-            row.put("target_gain",     rs.getDouble(6));
+            row.put("id",               rs.getInt(1));
+            row.put("year_label",       rs.getString(2));
+            row.put("start_date",       rs.getString(3));
+            row.put("end_date",         rs.getString(4));
+            row.put("opening_balance",  rs.getDouble(5));
+            row.put("target_gain",      rs.getDouble(6));
+            row.put("net_spend_budget", rs.getObject(7));
             return row.toString();
          }
          JSONObject notFound = new JSONObject();
@@ -136,14 +138,18 @@ public class FinancialYears extends AllowDeny
          c.setAutoCommit(false);
 
          // Insert financial year
-         String sql = "INSERT INTO financial_year (year_label, start_date, end_date, opening_balance, target_gain) " +
-                      "VALUES (?, ?, ?, ?, ?)";
+         String sql = "INSERT INTO financial_year (year_label, start_date, end_date, opening_balance, target_gain, net_spend_budget) " +
+                      "VALUES (?, ?, ?, ?, ?, ?)";
          PreparedStatement st = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
          st.setString(1, o.getString("year_label"));
          st.setString(2, o.getString("start_date"));
          st.setString(3, o.getString("end_date"));
          st.setDouble(4, o.optDouble("opening_balance", 0.00));
          st.setDouble(5, o.optDouble("target_gain", 20000.00));
+         if (o.isNull("net_spend_budget"))
+            st.setNull(6, java.sql.Types.DECIMAL);
+         else
+            st.setDouble(6, o.getDouble("net_spend_budget"));
          st.executeUpdate();
 
          ResultSet keys = st.getGeneratedKeys();

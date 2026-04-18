@@ -17,7 +17,7 @@
 
    .section-title { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
 
-   #balance-chart-wrapper { position: relative; height: 200px; }
+   #balance-chart-wrapper { position: relative; flex: 1; min-height: 200px; }
 
    .quick-link { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 6px;
                   background: #f8fafc; border: 1px solid #e9ecef; font-size: 13px; color: #1e2738;
@@ -73,7 +73,7 @@
    <!-- Balance trend chart -->
    <div class="col-lg-8">
       <div class="card shadow-sm h-100">
-         <div class="card-body">
+         <div class="card-body d-flex flex-column">
             <div class="section-title">Balance Trend — Current Year</div>
             <div id="balance-chart-wrapper"><canvas id="balanceChart"></canvas></div>
          </div>

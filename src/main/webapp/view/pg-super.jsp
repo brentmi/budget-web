@@ -300,6 +300,28 @@ function setChartRange(range)
    renderChart();
 }
 
+function computeTrend(values)
+{
+   var n = values.length;
+   if (n < 2) return values.slice();
+   var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+   for (var i = 0; i < n; i++)
+   {
+      sumX  += i;
+      sumY  += values[i];
+      sumXY += i * values[i];
+      sumX2 += i * i;
+   }
+   var denom = n * sumX2 - sumX * sumX;
+   if (denom === 0) return values.slice();
+   var slope     = (n * sumXY - sumX * sumY) / denom;
+   var intercept = (sumY - slope * sumX) / n;
+   var trend = [];
+   for (var j = 0; j < n; j++)
+      trend.push(Math.round((intercept + slope * j) * 100) / 100);
+   return trend;
+}
+
 function renderChart()
 {
    var from = document.getElementById('chart-from').value;
@@ -316,6 +338,7 @@ function renderChart()
       return MONTHS[dt.getMonth()] + ' ' + dt.getFullYear();
    });
    var values = filtered.map(function(d) { return d.balance_amount; });
+   var trend  = computeTrend(values);
 
    if (chartInst) { chartInst.destroy(); chartInst = null; }
 
@@ -324,28 +347,44 @@ function renderChart()
       type: 'line',
       data: {
          labels: labels,
-         datasets: [{
-            label: 'HESTA Balance',
-            data: values,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59,130,246,0.08)',
-            borderWidth: 2,
-            pointRadius: filtered.length > 60 ? 0 : 3,
-            pointHoverRadius: 5,
-            tension: 0.3,
-            fill: true
-         }]
+         datasets: [
+            {
+               label: 'HESTA Balance',
+               data: values,
+               borderColor: '#3b82f6',
+               backgroundColor: 'rgba(59,130,246,0.08)',
+               borderWidth: 2,
+               pointRadius: filtered.length > 60 ? 0 : 3,
+               pointHoverRadius: 5,
+               tension: 0.3,
+               fill: true
+            },
+            {
+               label: 'Trend',
+               data: trend,
+               borderColor: 'rgba(220,38,38,0.8)',
+               borderWidth: 2,
+               borderDash: [6, 4],
+               pointRadius: 0,
+               pointHoverRadius: 0,
+               tension: 0,
+               fill: false
+            }
+         ]
       },
       options: {
          responsive: true,
          maintainAspectRatio: false,
          plugins: {
-            legend: { display: false },
+            legend: {
+               display: true,
+               labels: { font: { size: 11 }, boxWidth: 24, padding: 12 }
+            },
             tooltip: {
                callbacks: {
                   label: function(ctx)
                   {
-                     return fmt(ctx.parsed.y);
+                     return ctx.dataset.label + ': ' + fmt(ctx.parsed.y);
                   }
                }
             }

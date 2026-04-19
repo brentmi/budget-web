@@ -154,6 +154,8 @@
                <div class="sp-section-hdr">Spending</div>
                <div class="sp-row"><span class="sp-lbl">Fixed required</span><span class="sp-val" id="sp-fixed">--</span></div>
                <div class="sp-row"><span class="sp-lbl">Total spend (yr)</span><span class="sp-val" id="sp-total-spend">--</span></div>
+               <div class="sp-row"><span class="sp-lbl">Budget</span><span class="sp-val" id="sp-budget">--</span></div>
+               <div class="sp-row"><span class="sp-lbl" id="sp-budget-label">Over Budget</span><span class="sp-val" id="sp-budget-diff">--</span></div>
                <div class="sp-row"><span class="sp-lbl">Discretionary (yr)</span><span class="sp-val" id="sp-disc-yr">--</span></div>
                <div class="sp-row"><span class="sp-lbl">Disc. per month</span><span class="sp-val" id="sp-disc-mo">--</span></div>
                <div class="sp-row"><span class="sp-lbl">Disc. per day</span><span class="sp-val" id="sp-disc-day">--</span></div>
@@ -592,6 +594,15 @@ function updateSummaryPanel()
    document.getElementById('sp-target').textContent      = fmt(year.target_gain);
    document.getElementById('sp-fixed').textContent       = fmt(fixedYearly);
    document.getElementById('sp-total-spend').textContent = fmt(totalDebit);
+
+   var netSpendBudget = year.net_spend_budget != null ? year.net_spend_budget : 0;
+   var budgetDiff     = totalDebit - netSpendBudget;
+   document.getElementById('sp-budget').textContent       = year.net_spend_budget != null ? fmt(netSpendBudget) : '—';
+   document.getElementById('sp-budget-label').textContent = budgetDiff > 0 ? 'Over Budget' : 'Under Budget';
+   var budgetDiffEl = document.getElementById('sp-budget-diff');
+   budgetDiffEl.textContent = year.net_spend_budget != null ? fmt(Math.abs(budgetDiff)) : '—';
+   budgetDiffEl.className   = 'sp-val ' + (budgetDiff > 0 ? 'gain-neg' : 'gain-pos');
+
    document.getElementById('sp-disc-yr').textContent     = fmt(disc);
    document.getElementById('sp-disc-mo').textContent     = fmt(disc / 12);
    document.getElementById('sp-disc-day').textContent    = fmt(disc / 365);

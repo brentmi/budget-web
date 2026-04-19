@@ -54,9 +54,9 @@
    </div>
    <div class="col-6 col-md-3">
       <div class="dash-card">
-         <div class="dash-label">Daily Discretionary</div>
-         <div class="dash-value neutral" id="d-daily">—</div>
-         <div class="dash-sub">based on YTD spend</div>
+         <div class="dash-label" id="d-budget-label">Over Budget</div>
+         <div class="dash-value" id="d-budget-diff">—</div>
+         <div class="dash-sub" id="d-budget-sub">—</div>
       </div>
    </div>
    <div class="col-6 col-md-3">
@@ -201,11 +201,12 @@ function loadDashboard()
 function renderDashboard(year, monthData, fixedYearly)
 {
    // Compute running balances
-   var balance      = year.opening_balance;
-   var totalDebit   = 0;
-   var chartLabels  = ['Start'];
-   var chartValues  = [year.opening_balance];
-   var currentMonthNo = getCurrentFYMonth(); // 1-12
+   var balance         = year.opening_balance;
+   var currentBalance  = year.opening_balance;
+   var totalDebit      = 0;
+   var chartLabels     = ['Start'];
+   var chartValues     = [year.opening_balance];
+   var currentMonthNo  = getCurrentFYMonth(); // 1-12
 
    monthData.forEach(function(md, idx)
    {
@@ -214,20 +215,21 @@ function renderDashboard(year, monthData, fixedYearly)
       totalDebit += debits;
       balance    = balance - debits + credits;
 
-      // Only include months up to current for chart
+      // Only include months up to current for chart; capture closing balance at current month
       if (md.month.month_number <= currentMonthNo)
       {
+         currentBalance = balance;
          chartLabels.push(MONTH_NAMES[idx]);
          chartValues.push(balance);
       }
    });
 
-   var gain  = balance - year.opening_balance;
+   var gain  = currentBalance - year.opening_balance;
    var disc  = Math.max(0, totalDebit - fixedYearly);
 
    // Stats
-   document.getElementById('d-balance').textContent      = fmt(balance);
-   document.getElementById('d-balance-month').textContent = 'after ' + MONTH_NAMES[currentMonthNo - 1];
+   document.getElementById('d-balance').textContent       = fmt(currentBalance);
+   document.getElementById('d-balance-month').textContent = 'End of ' + MONTH_NAMES[currentMonthNo - 1];
 
    var gainEl = document.getElementById('d-gain');
    gainEl.textContent = (gain >= 0 ? '+' : '') + fmt(gain);
@@ -239,7 +241,13 @@ function renderDashboard(year, monthData, fixedYearly)
    document.getElementById('d-target-bar').style.width = targetPct.toFixed(0) + '%';
    document.getElementById('d-target-bar').style.background = gain >= year.target_gain ? '#4ade80' : '#3b82f6';
 
-   document.getElementById('d-daily').textContent = fmt(disc / 365);
+   var netSpendBudget = year.net_spend_budget != null ? year.net_spend_budget : 0;
+   var budgetDiff     = totalDebit - netSpendBudget;
+   var budgetDiffEl   = document.getElementById('d-budget-diff');
+   document.getElementById('d-budget-label').textContent = budgetDiff > 0 ? 'Over Budget' : 'Under Budget';
+   budgetDiffEl.textContent  = year.net_spend_budget != null ? fmt(Math.abs(budgetDiff)) : '—';
+   budgetDiffEl.className    = 'dash-value ' + (budgetDiff > 0 ? 'gain-neg' : 'gain-pos');
+   document.getElementById('d-budget-sub').textContent = year.net_spend_budget != null ? 'budgeted: ' + fmt(netSpendBudget) : 'no budget set';
 
    // Spending snapshot
    var snapshotHtml =

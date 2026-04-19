@@ -432,17 +432,22 @@ function renderMetrics()
          balance    += (c - d);
          totalDebit += d;
       });
-      var gain  = balance - year.opening_balance;
-      var disc  = Math.max(0, totalDebit - fixedYearly);
-      var onTgt = gain - year.target_gain;
+      var gain           = balance - year.opening_balance;
+      var netSpendBudget = year.net_spend_budget != null ? year.net_spend_budget : 0;
+      var budgetDiff     = totalDebit - netSpendBudget;
+      var budgetLabel    = budgetDiff > 0 ? 'Over Budget' : 'Under Budget';
+      var budgetVal      = year.net_spend_budget != null
+         ? '<span class="' + (budgetDiff > 0 ? 'gain-neg' : 'gain-pos') + '">' + fmt(Math.abs(budgetDiff)) + '</span>'
+         : '—';
 
       html += '<div style="margin-bottom:16px;">' +
          '<div style="font-size:12px;font-weight:700;color:#1e2738;margin-bottom:6px;">' + year.year_label + '</div>' +
          mRow('Opening',        fmt(year.opening_balance)) +
          mRow('Closing (proj)', fmt(balance)) +
          mRow('Gain / Loss',    '<span class="' + (gain >= 0 ? 'gain-pos' : 'gain-neg') + '">' + (gain >= 0 ? '+' : '') + fmt(gain) + '</span>') +
-         mRow('On Target',      '<span class="' + (onTgt >= 0 ? 'gain-pos' : 'gain-neg') + '">' + (onTgt >= 0 ? '+' : '') + fmt(onTgt) + '</span>') +
-         mRow('Disc. / day',    fmt(disc / 365)) +
+         mRow('Total Spending', fmt(totalDebit)) +
+         mRow('Budget',         year.net_spend_budget != null ? fmt(netSpendBudget) : '—') +
+         mRow(budgetLabel,      budgetVal) +
          '</div>';
    });
    document.getElementById('year-metrics').innerHTML = html || '<div style="font-size:12px;color:#94a3b8;">No data.</div>';

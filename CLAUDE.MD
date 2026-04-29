@@ -24,8 +24,11 @@ If you are an AI assistant: **read this fully before suggesting or generating co
 ## Core Principles
  
 ### P0 ALLWAYS / CRITICAL
-- when patching a function or file while trying to resolve a bug or issue do not immediatly keep adding to a patch unless its useful - ALWAYS review the previous patch and decide if the previous patch needs to be undone or rolled back BEFORTE adding to it with additional patching!!!!
- 
+Critical:
+- when patching a function or file while trying to resolve a bug or issue do not immediatly keep adding to a patch unless its useful 
+- ALWAYS review the previous patch and decide if the previous patch needs to be undone, if so ROLLBACK back BEFORE additional patching!!!!
+- Clean up after yourself - In other words dont leave dead code!
+
 ### P1. Boring is good
 Prefer:
 - explicit code

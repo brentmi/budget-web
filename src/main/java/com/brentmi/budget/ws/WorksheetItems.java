@@ -89,8 +89,8 @@ public class WorksheetItems extends AllowDeny
       try
       {
          c = Datasource.getConnection(request);
-         String sql = "INSERT INTO worksheet_item (section, item_name, default_item_name, amount, default_amount, notes, sort_order) " +
-                      "VALUES (?, ?, ?, ?, ?, ?, (select (max(sort_order)+1)))";
+         String sql = "INSERT INTO worksheet_item (section, item_name, default_item_name, amount, default_amount, notes, is_active, default_is_active, sort_order) " +
+                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(wi.sort_order), 0) + 1 FROM worksheet_item wi))";
          PreparedStatement st = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
          st.setString(1, o.getString("section"));
          st.setString(2, o.getString("item_name"));
@@ -98,7 +98,8 @@ public class WorksheetItems extends AllowDeny
          st.setDouble(4, o.getDouble("amount"));
          st.setDouble(5, o.getDouble("amount"));
          st.setString(6, o.optString("notes", ""));
-         //st.setInt(5,    o.optInt("sort_order", 0));
+         st.setInt(7,    o.optInt("is_active", 1));
+         st.setInt(8,    o.optInt("is_active", 1));
          st.executeUpdate();
 
          ResultSet keys = st.getGeneratedKeys();

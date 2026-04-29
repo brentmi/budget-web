@@ -75,28 +75,39 @@
    <!-- LEFT: CC Estimates + Subscriptions -->
    <div class="col-lg-6">
 
-      <!-- Per Day Estimate Spend -->
+      <!-- Payment Forecast -->
       <div class="card shadow-sm mb-4">
          <div class="card-body">
-            <p class="ws-section-heading mb-3">Per Day Estimate Spend</p>
+            <p class="ws-section-heading mb-3">Payment Forecast</p>
             <table class="table ws-table mb-0">
                <thead>
                   <tr>
-                     <th>Days Until Statement</th>
-                     <th>Per Day Target</th>
-                     <th>Remaining Budget</th>
+                     <th>Next Pmt</th>
+                     <th>Stmt Days</th>
+                     <th>Per Day</th>
+                     <th>Remaining</th>
+                     <th>Last Unallocated</th>
                   </tr>
                </thead>
                <tbody>
                   <tr>
-                     <td id="days-until-stmt">â</td>
-                     <td id="per-day-spend">â</td>
-                     <td id="remaining-budget">â</td>
+                     <td id="next-pmt" style="font-size:13px;">&#x2014;</td>
+                     <td id="days-until-stmt">&#x2014;</td>
+                     <td id="per-day-spend">&#x2014;</td>
+                     <td id="remaining-budget">&#x2014;</td>
+                     <td>
+                        <input type="number" id="last-alloc-input" class="form-control form-control-sm"
+                               style="width:110px;display:inline-block;" value="0.00" min="0" step="0.01">
+                        <button class="btn btn-xs btn-outline-primary" style="padding:2px 7px;font-size:11px;margin-left:4px;"
+                                onclick="saveLastUnallocated()" title="Save">
+                           <i class="fa-solid fa-floppy-disk"></i>
+                        </button>
+                     </td>
                   </tr>
                </tbody>
             </table>
             <div style="font-size:11px;color:#94a3b8;margin-top:8px;">
-               Statement date: 26th of each month &nbsp;&middot;&nbsp; Remaining Budget = Days Until Statement &times; Per Day Spend
+               Statement date: 26th of each month &nbsp;&middot;&nbsp; Remaining = Stmt Days &times; Per Day
             </div>
          </div>
       </div>
@@ -344,6 +355,7 @@ function loadYears()
             sel.value    = matched ? fyLabel : years[years.length - 1].year_label;
          }
          loadInterest();
+         loadNextCcPayment();
       })
       .catch(function() { loadInterest(); });
 }
@@ -365,19 +377,23 @@ function loadWorksheetItems()
       });
 }
 
-var ccBalanceItem    = null;
+var ccBalanceItem     = null;
+var lastAllocItem     = null;
 var computedMiscSpend = 0;
 
 function renderCcEstimates()
 {
    var items = wsItems.filter(function(i) { return i.section === 'cc_estimate'; });
    ccBalanceItem = wsItems.find(function(i) { return i.section === 'cc_balance'; }) || null;
+   lastAllocItem = wsItems.find(function(i) { return i.section === 'last_alloc'; }) || null;
+   var lastAllocInput = document.getElementById('last-alloc-input');
+   if (lastAllocInput) lastAllocInput.value = lastAllocItem ? lastAllocItem.amount.toFixed(2) : '0.00';
 
    var tbody = document.getElementById('rows-cc_estimate');
    var total = 0;
    var html  = '';
 
-   // Balance row â always first, inline input, save button only
+   // Balance row always first, inline input, save button only
    var balAmount = ccBalanceItem ? ccBalanceItem.amount : 0;
    total += balAmount;
    html += '<tr style="background:#f8fafc;">' +
@@ -530,6 +546,84 @@ function saveCcBalance()
    .then(function(r) { return r.json(); })
    .then(function(res) { if (res.status === 'ok') loadWorksheetItems(); })
    .catch(function() {});
+}
+
+function saveLastUnallocated()
+{
+   var input  = document.getElementById('last-alloc-input');
+   var amount = parseFloat(input.value);
+   if (isNaN(amount) || amount < 0) return;
+
+   var payload = { section: 'last_alloc', item_name: 'Last Unallocated', amount: amount, notes: '', sort_order: 0, is_active: 1 };
+   var url     = lastAllocItem ? 'ws/worksheet/' + lastAllocItem.id : 'ws/worksheet';
+   var method  = lastAllocItem ? 'PUT' : 'POST';
+
+   fetch(url, {
+      method: method,
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+   })
+   .then(function(r) { return r.json(); })
+   .then(function(res) { if (res.status === 'ok') loadWorksheetItems(); })
+   .catch(function() {});
+}
+
+function loadNextCcPayment()
+{
+   var now      = new Date();
+   var day      = now.getDate();
+   var calMonth = now.getMonth() + 1;   // 1-12
+   var calYear  = now.getFullYear();
+
+   // If past the 26th, look at next month's payment
+   if (day > 26)
+   {
+      calMonth++;
+      if (calMonth > 12) { calMonth = 1; calYear++; }
+   }
+
+   // Map calendar month to FY month number (FY starts July = month 1)
+   var fyMonth     = calMonth >= 7 ? calMonth - 6 : calMonth + 6;
+   var fyStartYear = calMonth >= 7 ? calYear : calYear - 1;
+   var fyLabel     = fyStartYear + '-' + (fyStartYear + 1);
+
+   var year = availableYears.find(function(y) { return y.year_label === fyLabel; });
+   if (!year)
+   {
+      document.getElementById('next-pmt').textContent = fmt(0);
+      return;
+   }
+
+   fetch('ws/months?year_id=' + year.id, { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(months)
+      {
+         var month = months.find(function(m) { return m.month_number === fyMonth; });
+         if (!month)
+         {
+            document.getElementById('next-pmt').textContent = fmt(0);
+            return;
+         }
+         return fetch('ws/entries?month_id=' + month.id, { credentials: 'same-origin' })
+            .then(function(r) { return r.json(); })
+            .then(function(entries)
+            {
+               var pmtEntries = entries.filter(function(e)
+               {
+                  return e.category === 'cc_payment' && e.entry_type === 'DEBIT';
+               });
+               var total    = pmtEntries.reduce(function(s, e) { return s + e.amount; }, 0);
+               var isActual = pmtEntries.some(function(e) { return e.is_actual === 1; });
+               var cell     = document.getElementById('next-pmt');
+               cell.textContent = fmt(total);
+               cell.style.color = isActual ? '#dc2626' : '';
+            });
+      })
+      .catch(function()
+      {
+         document.getElementById('next-pmt').textContent = fmt(0);
+      });
 }
 
 function renderWsSection(section, tbodyId, totalId)

@@ -134,7 +134,7 @@
                <tfoot>
                   <tr class="total-row">
                      <td>Total</td>
-                     <td id="cc-total">â</td>
+                     <td id="cc-total"></td>
                      <td></td>
                   </tr>
                </tfoot>
@@ -164,22 +164,22 @@
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Net Total</div>
-                     <div class="int-value" id="int-net-total">â</div>
+                     <div class="int-value" id="int-net-total"></div>
                      <div class="tax-rate-note">after tax (47%)</div>
                   </div>
                </div>
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Gross approx.</div>
-                     <div class="int-value" id="int-gross-total">â</div>
+                     <div class="int-value" id="int-gross-total"></div>
                      <div class="tax-rate-note">net / 0.53</div>
                   </div>
                </div>
                <div class="col-4">
                   <div class="interest-card">
                      <div class="int-label">Tax Paid (47%)</div>
-                     <div class="int-value" id="int-tax-paid">â</div>
-                     <div class="tax-rate-note">gross â net</div>
+                     <div class="int-value" id="int-tax-paid"></div>
+                     <div class="tax-rate-note">gross net</div>
                   </div>
                </div>
             </div>
@@ -189,9 +189,9 @@
                <div class="d-flex justify-content-between align-items-center">
                   <div>
                      <div style="font-size:12px;font-weight:600;color:#64748b;">ATO Refund Estimate (at 37%)</div>
-                     <div style="font-size:11px;color:#94a3b8;">Tax paid at 47% vs actual 37% bracket â excess refunded</div>
+                     <div style="font-size:11px;color:#94a3b8;">Tax paid at 47% vs actual 37% bracket — excess refunded</div>
                   </div>
-                  <div id="ato-refund" style="font-size:20px;font-weight:700;">â</div>
+                  <div id="ato-refund" style="font-size:20px;font-weight:700;"></div>
                </div>
             </div>
 
@@ -275,8 +275,8 @@
                <input type="number" class="form-control form-control-sm" id="int-amount" min="0" step="0.01">
             </div>
             <div class="mb-2" style="background:#f8fafc;border-radius:4px;padding:10px;">
-               <div style="font-size:12px;color:#64748b;">Gross (net / 0.53): <strong id="int-calc-gross">â</strong></div>
-               <div style="font-size:12px;color:#64748b;">Tax paid (47%): <strong id="int-calc-tax">â</strong></div>
+               <div style="font-size:12px;color:#64748b;">Gross (net / 0.53): <strong id="int-calc-gross"></strong></div>
+               <div style="font-size:12px;color:#64748b;">Tax paid (47%): <strong id="int-calc-tax"></strong></div>
             </div>
             <div id="int-modal-error" class="text-danger" style="font-size:12px;display:none;"></div>
          </div>
@@ -479,8 +479,8 @@ function renderPerDayEstimate()
       })
       .catch(function()
       {
-         document.getElementById('per-day-spend').textContent    = 'â';
-         document.getElementById('remaining-budget').textContent = 'â';
+         document.getElementById('per-day-spend').textContent    = '';
+         document.getElementById('remaining-budget').textContent = '';
       });
 }
 
@@ -821,8 +821,8 @@ function openAddIntModal()
    document.getElementById('int-id').value     = '';
    document.getElementById('int-date').value   = '';
    document.getElementById('int-amount').value = '';
-   document.getElementById('int-calc-gross').textContent = 'â';
-   document.getElementById('int-calc-tax').textContent   = 'â';
+   document.getElementById('int-calc-gross').textContent = '';
+   document.getElementById('int-calc-tax').textContent   = '';
    document.getElementById('intModalTitle').textContent  = 'Add Interest Record';
    document.getElementById('int-modal-error').style.display = 'none';
    intModalObj.show();
@@ -852,8 +852,8 @@ function updateIntCalc()
    }
    else
    {
-      document.getElementById('int-calc-gross').textContent = 'â';
-      document.getElementById('int-calc-tax').textContent   = 'â';
+      document.getElementById('int-calc-gross').textContent = '';
+      document.getElementById('int-calc-tax').textContent   = '';
    }
 }
 
